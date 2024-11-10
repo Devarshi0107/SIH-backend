@@ -6,6 +6,8 @@ const postalCircleRoutes = require('./routes/postalCircle.route');
 const philatelicItemRoutes = require('./routes/philatelicItem.route');
 const authRoutes = require('./routes/auth.route');
 const pdaRoutes = require('./routes/pda.route');
+const eventRoutes = require('./routes/event.routes');
+const newsRoutes = require('./routes/news.routes');
 
 dotenv.config();
 connectDB();
@@ -17,6 +19,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/pda', pdaRoutes); 
 app.use('/api/postal-circles', postalCircleRoutes);
 app.use('/api/philatelic-items', philatelicItemRoutes);
+app.use('/api/events', eventRoutes); // Use Event routes
+app.use('/api/news', newsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Resource not found' });
