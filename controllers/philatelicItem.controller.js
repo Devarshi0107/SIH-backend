@@ -1,5 +1,5 @@
 // controllers/philatelicItemController.js
-const PhilatelicItem = require('../models/PhilatelicItem');
+const PhilatelicItem = require('../models/PhilatelicItem.model');
 
 exports.getPhilatelicItems = async (req, res) => {
   try {

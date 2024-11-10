@@ -1,6 +1,6 @@
 // routes/postalCircleRoutes.js
 const express = require('express');
-const { getPostalCircles, createPostalCircle } = require('../controllers/postalCircleController');
+const { getPostalCircles, createPostalCircle } = require('../controllers/postalCircle.controller');
 const router = express.Router();
 
 router.get('/', getPostalCircles);

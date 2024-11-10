@@ -1,6 +1,6 @@
 // routes/philatelicItemRoutes.js
 const express = require('express');
-const { getPhilatelicItems, createPhilatelicItem } = require('../controllers/philatelicItemController');
+const { getPhilatelicItems, createPhilatelicItem } = require('../controllers/philatelicItem.controller');
 const router = express.Router();
 
 router.get('/', getPhilatelicItems);

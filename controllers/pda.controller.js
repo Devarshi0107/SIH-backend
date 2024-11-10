@@ -1,5 +1,5 @@
 // controllers/pdaController.js
-const PDA = require('../models/PDA');
+const PDA = require('../models/PDA.model');
 
 // Get all PDA accounts
 exports.getPDAs = async (req, res) => {

@@ -1,5 +1,5 @@
 // controllers/postalCircleController.js
-const PostalCircle = require('../models/PostalCircle');
+const PostalCircle = require('../models/PostalCircle.model');
 
 exports.getPostalCircles = async (req, res) => {
   try {

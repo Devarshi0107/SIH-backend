@@ -6,7 +6,7 @@ const {
   getPDAById,
   updatePDA,
   deletePDA
-} = require('../controllers/pdaController');
+} = require('../controllers/pda.controller');
 const router = express.Router();
 
 router.get('/', getPDAs);
