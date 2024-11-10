@@ -1,5 +1,5 @@
 // controllers/eventController.js
-const Event = require('../models/Event');
+const Event = require('../models/Event.model');
 
 // Get all events
 exports.getEvents = async (req, res) => {

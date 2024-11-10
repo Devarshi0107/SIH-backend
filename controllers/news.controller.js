@@ -1,5 +1,5 @@
 // controllers/newsController.js
-const News = require('../models/News.model');
+const News = require('../models/News.model.js');
 
 // Get all news items
 exports.getNews = async (req, res) => {
