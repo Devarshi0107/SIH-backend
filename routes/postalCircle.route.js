@@ -13,7 +13,7 @@ const authenticateisuser = require('../middlewares/authenticateuser');
 const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 
 
-router.get('/', authenticateisuser, getPostalCircles);
+router.get('/', authenticateisuser,isAdmin, getPostalCircles);
 router.post('/', authenticateisuser, isAdmin, createPostalCircle);
 router.post('/login', loginPostalCircle);  
 router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword); 
