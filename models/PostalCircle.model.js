@@ -5,7 +5,8 @@ const postalCircleSchema = new mongoose.Schema({
   unique_id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  password: { type: String, required: true }, // password filed
+  // user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   region: { type: String, required: true },
   state: { type: String, required: true },
   address: {
