@@ -1,0 +1,35 @@
+.
+├── README.md
+├── app.js
+├── config
+│   └── db.js
+├── controllers
+│   ├── auth.controller.js
+│   ├── event.controller.js
+│   ├── news.controller.js
+│   ├── pda.controller.js
+│   ├── philatelicItem.controller.js
+│   └── postalCircle.controller.js
+├── directory_structure.txt
+├── middlewares
+│   └── errorHandler.js
+├── models
+│   ├── Event.model.js
+│   ├── News.model.js
+│   ├── PDA.model.js
+│   ├── PhilatelicItem.model.js
+│   ├── PostalCircle.model.js
+│   └── user.model.js
+├── package-lock.json
+├── package.json
+├── routes
+│   ├── auth.route.js
+│   ├── event.routes.js
+│   ├── news.routes.js
+│   ├── pda.route.js
+│   ├── philatelicItem.route.js
+│   └── postalCircle.route.js
+├── server.js
+└── text.txt
+
+6 directories, 27 files

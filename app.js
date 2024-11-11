@@ -19,7 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/pda', pdaRoutes); 
 app.use('/api/postal-circles', postalCircleRoutes);
 app.use('/api/philatelic-items', philatelicItemRoutes);
-app.use('/api/events', eventRoutes); // Use Event routes
+app.use('/api/events', eventRoutes); 
 app.use('/api/news', newsRoutes);
 
 app.use((req, res) => {

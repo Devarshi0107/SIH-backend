@@ -1,9 +1,22 @@
-// routes/postalCircleRoutes.js
-const express = require('express');
-const { getPostalCircles, createPostalCircle } = require('../controllers/postalCircle.controller');
-const router = express.Router();
+// routes/postalCircle.route.js
 
-router.get('/', getPostalCircles);
-router.post('/', createPostalCircle);
+const express = require('express');
+const { 
+    getPostalCircles, 
+    createPostalCircle, 
+    loginPostalCircle, 
+    changePostalCirclePassword 
+  } = require('../controllers/postalCircle.controller');
+const isAdmin = require('../middlewares/isAdmin');
+const router = express.Router();
+const authenticateisuser = require('../middlewares/authenticateuser');
+const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
+
+
+router.get('/', authenticateisuser, getPostalCircles);
+router.post('/', authenticateisuser, isAdmin, createPostalCircle);
+router.post('/login', loginPostalCircle);  
+router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword); 
+
 
 module.exports = router;
