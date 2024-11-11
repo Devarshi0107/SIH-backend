@@ -1,43 +1,65 @@
-Total api
-Login and signup ( without sing in with google ) - Pending - Vasu - user
-Login ( without sing in with google ) - Pending - Vasu - Postal circle
-Login and signup ( without sing in with google ) - Pending - Vasu - Admin
-Login and signup ( with sing in with google ) - Pending - Kirtan - user
-Get , Put , Delete  , Post  api when user add phone number and address - Pending - Harsh - user
-Contact (chat with support) - Pending - Kirtan - user (user to admin) - Future work 
-Contact (chat with support) - Pending - Kirtan - Post circle (Post circle to admin) - Future work
-Search (stamp name) - Pending - Harsh - user
-Community - Post (admin and user) , Put (admin and user) , get , delete - Pending - Devarshi 
-like - Pending - Devarshi 
-share - Pending - Devarshi 
-comment (post circle also ) - Pending - Devarshi 
-subscribe news - Pending  - Devarshi
-Upcoming Event - Pending - Kirtan - user
-Pda account open - Pending - Kirtan -user 
-get all post circle id with state and city - Pending - Kirtan - user
-news - post , get , put , delete - Pending - Kirtan 
-total PDA account (total number ) - Pending - Harsh - Admin
-total number of user - Pending - Harsh - Admin
-total sales ( from order sucess ) - Vasu - Admin
-generate sales report - vasu - admin
-postal circle listing item own using id get , post , put , delete  - Pending - Devarshi - postal circle
-user order api - Pending - Kirtan
-show order by user in post circle  - Pending - Kirtan
-add money in wallet - Pending - Kirtan - Usera
-add to cart api - Pending - Kirtan - User
-Translate api - Pending - Devarshi - Future work
-wallet balance add when order by user in postal circle side - Pending - Kirtan
+# API Endpoints Documentation
+
+This document provides an overview of the pending API endpoints and their details for our project. 
+
+## Pending API Tasks by Team Members
+
+| API | Status | Assigned To | Notes |
+| --- | ------ | ----------- | ----- |
+| Login and Signup (without Google Sign-In) - User | Pending | Vasu |  |
+| Login (without Google Sign-In) - Postal Circle | Pending | Vasu | |
+| Login and Signup (without Google Sign-In) - Admin | Pending | Vasu | |
+| Login and Signup (with Google Sign-In) - User | Pending | Kirtan | |
+| User Phone Number and Address (Get, Put, Delete, Post) | Pending | Harsh | |
+| Contact Support (Chat) - User to Admin | Future Work | Kirtan | |
+| Contact Support (Chat) - Postal Circle to Admin | Future Work | Kirtan | |
+| Stamp Search by Name | Pending | Harsh | |
+| Community Posts (Post, Put, Get, Delete) | Pending | Devarshi | |
+| Like Functionality | Pending | Devarshi | |
+| Share Functionality | Pending | Devarshi | |
+| Comment Functionality (Post Circle Included) | Pending | Devarshi | |
+| Subscribe to News | Pending | Devarshi | |
+| Upcoming Event | Pending | Kirtan | User |
+| PDA Account Open | Pending | Kirtan | User |
+| Retrieve Postal Circle ID by State and City | Pending | Kirtan | |
+| News CRUD (Post, Get, Put, Delete) | Pending | Kirtan | |
+| Total PDA Account Count | Pending | Harsh | Admin |
+| Total User Count | Pending | Harsh | Admin |
+| Total Sales (From Order Success) | Pending | Vasu | Admin |
+| Generate Sales Report | Pending | Vasu | Admin |
+| Postal Circle Item Management (Get, Post, Put, Delete) | Pending | Devarshi | Postal Circle |
+| User Order API | Pending | Kirtan | |
+| Show User Orders in Postal Circle | Pending | Kirtan | |
+| Wallet Recharge | Pending | Kirtan | User |
+| Add to Cart API | Pending | Kirtan | User |
+| Translation API | Future Work | Devarshi | |
+| Wallet Balance Update on Postal Circle Orders | Pending | Kirtan | |
+
+---
 
 
+# Postal Circle & Philatelic API Documentation
 
+This documentation provides details for the available API endpoints related to postal circles, philatelic items, news, events, and PDA (Philatelic Deposit Account) management.
 
+## Endpoints
 
-API endpoint 
-1.GET)localhost:5000/api/postal-circles
- get all postal circle details without admin verify
-2.(GET)localhost:5000/api/philatelic-items
-get  all philatalic item 
-3. (POST)localhost:5000/api/philatelic-items
+### 1. **Get All Postal Circle Details**
+- **URL**: `GET localhost:5000/api/postal-circles`
+- **Description**: Get all postal circle details without admin verification.
+
+---
+
+### 2. **Get All Philatelic Items**
+- **URL**: `GET localhost:5000/api/philatelic-items`
+- **Description**: Get all philatelic items.
+
+---
+
+### 3. **Upload a Philatelic Item**
+- **URL**: `POST localhost:5000/api/philatelic-items`
+- **Request Body**:
+```json
 {
   "title": "New Postal Circle Announcement",
   "description": "Join us for the upcoming event at the ABC postal circle. Learn about the latest services and updates.",
@@ -45,8 +67,12 @@ get  all philatalic item
   "postalCircle": "ABC Postal Circle",
   "postedTime": "2024-11-10T14:00:00Z"
 }
-philatelic-items upload by post circle
-4.(POST)localhost:5000/api/postal-circles
+```
+
+### 4. **Upload Postal Circle Details**
+- **URL**: `POST localhost:5000/api/postal-circles`
+- **Request Body**:
+```json
 {
   "unique_id": "PC456",
   "name": "Mumbai Postal Circle",
@@ -66,91 +92,135 @@ philatelic-items upload by post circle
     }
   ]
 }
+```
+---
+### 5. Get All PDA Accounts
+- **URL**: `GET localhost:5000/api/pda`
+- **Description**: Get all PDA (Philatelic Deposit Account) details.
 
-postal circle details upload by admin without admin login (remaining)
-5.(GET)localhost:5000/api/pda
-get all pda account
-6.(POST)localhost:5000/api/news
-{
-  "title": "New Postal Circle Announcement",
-  "description": "Join us for the upcoming event at the ABC postal circle. Learn about the latest services and updates.",
-  "image": "https://example.com/news-image.jpg",
-  "postalCircle": "ABC Postal Circle",
-  "postedTime": "2024-11-10T14:00:00Z"
-}
-Create a News Item
-7.(GET) localhost:5000/api/news
-Retrieve All News Items
-8. (GET) http://localhost:5000/api/news/6730ef9dfcea040fe11cb5ba
-Retrieve a News Item by ID
-9. (PUT) http://localhost:5000/api/news/6730ef9dfcea040fe11cb5ba
-{
-  "title": "Updated Postal Circle Announcement",
-  "description": "Updated description for the postal circle announcement."
-}
-Update a News Item by ID
-10. (DEL) http://localhost:5000/api/news/6730ef9dfcea040fe11cb5ba
-Delete a News Item by ID
-11. (POST) http://localhost:5000/api/events
-{
-  "title": "Music Festival",
-  "description": "Join us for a great music festival.",
-  "postalCircle": "12345",
-  "image": "https://example.com/event-image.jpg",
-  "startDate": "2024-12-01",
-  "endDate": "2024-12-05",
-  "startTime": "6:00 pm",
-  "endTime": "10:00 pm",
-  "location": "Los Angeles, CA",
-  "registrationLink": "https://example.com/register",
-  "postedDate": "2024-10-01",
-  "lat": 34.0522,
-  "lng": -118.2437
-}
-Create an Event
-12.(GET) http://localhost:5000/api/events
-Retrieve All Events
-13.(GET)http://localhost:5000/api/events/6730f0a9fcea040fe11cb5c1
-Retrieve an Event by ID
-14.(PUT) http://localhost:5000/api/events/6730f0a9fcea040fe11cb5c1
-updat event
-15. (DEL)http://localhost:5000/api/events/6730f0a9fcea040fe11cb5c1
-delete event
-16. (POST) localhost:5000/api/pda
-{
-  "account_number": "PDA123456789",
-  "user": "6730c113e7b9622fed06eee9", 
-  "postal_circle": "6730b1b6b21c8b91449c9f62", 
-  "balance": 5000,
-  "preferences": {
-    "item_types": ["stamps", "souvenir sheets", "first day covers"],
-    "notification_preferences": {
-      "email": true,
-      "sms": false
-    }
-  },
-  "status": "active",
-  "philatelicInventory": {
-    "MintCommemorativeStamps": 20,
-    "MintDefinitiveStamps": 15,
-    "TopMarginalBlock": 5,
-    "BottomMarginalBlock": 7,
-    "FullSheet": 3,
-    "FirstDayCoversAffixed": 10,
-    "FirstDayCoversBlank": 8,
-    "InformationBrochureAffixed": 5,
-    "InformationBrochureBlank": 6,
-    "AnnualStampPack": 2,
-    "ChildrenSpecialAnnualStampPack": 1,
-    "SpecialCollectorsStampPack": 3,
-    "FirstDayCoverPack": 4,
-    "MiniSheetSouvenirSheet": 12,
-    "PostalStationery": 6,
-    "OtherItems": "Custom commemorative stamps"
+---
+
+### 6. Create a News Item
+- **URL**: `POST localhost:5000/api/news`
+- **Request Body**:
+  ```json
+  {
+    "title": "New Postal Circle Announcement",
+    "description": "Join us for the upcoming event at the ABC postal circle. Learn about the latest services and updates.",
+    "image": "https://example.com/news-image.jpg",
+    "postalCircle": "ABC Postal Circle",
+    "postedTime": "2024-11-10T14:00:00Z"
   }
-}
 
-pda account post by postal circle
+### 7. Retrieve All News Items
+- **URL**: `GET localhost:5000/api/news`
+- **Description**: Retrieve all news items.
+
+---
+
+### 8. Retrieve a News Item by ID
+- **URL**: `GET localhost:5000/api/news/{id}`
+- **Description**: Retrieve a news item by its ID.
+
+---
+
+### 9. Update a News Item by ID
+- **URL**: `PUT localhost:5000/api/news/{id}`
+- **Request Body**:
+  ```json
+  {
+    "title": "Updated Postal Circle Announcement",
+    "description": "Updated description for the postal circle announcement."
+  }
+### 10. Delete a News Item by ID
+- **URL**: `DELETE localhost:5000/api/news/{id}`
+- **Description**: Delete a news item by ID.
+
+---
+
+### 11. Create an Event
+- **URL**: `POST localhost:5000/api/events`
+- **Request Body**:
+  ```json
+  {
+    "title": "Music Festival",
+    "description": "Join us for a great music festival.",
+    "postalCircle": "12345",
+    "image": "https://example.com/event-image.jpg",
+    "startDate": "2024-12-01",
+    "endDate": "2024-12-05",
+    "startTime": "6:00 pm",
+    "endTime": "10:00 pm",
+    "location": "Los Angeles, CA",
+    "registrationLink": "https://example.com/register",
+    "postedDate": "2024-10-01",
+    "lat": 34.0522,
+    "lng": -118.2437
+  }
+### 12. Retrieve All Events
+- **URL**: `GET localhost:5000/api/events`
+- **Description**: Retrieve all events.
+
+---
+
+### 13. Retrieve an Event by ID
+- **URL**: `GET localhost:5000/api/events/{id}`
+- **Description**: Retrieve an event by ID.
+
+---
+
+### 14. Update an Event
+- **URL**: `PUT localhost:5000/api/events/{id}`
+- **Request Body**:
+  ```json
+  {
+    "title": "Updated Event Title",
+    "description": "Updated description for the event."
+  }
+### 15. Delete an Event
+- **URL**: `DELETE localhost:5000/api/events/{id}`
+- **Description**: Delete an event by ID.
+
+---
+
+### 16. Create a PDA Account
+- **URL**: `POST localhost:5000/api/pda`
+- **Request Body**:
+  ```json
+  {
+    "account_number": "PDA123456789",
+    "user": "6730c113e7b9622fed06eee9",
+    "postal_circle": "6730b1b6b21c8b91449c9f62",
+    "balance": 5000,
+    "preferences": {
+      "item_types": ["stamps", "souvenir sheets", "first day covers"],
+      "notification_preferences": {
+        "email": true,
+        "sms": false
+      }
+    },
+    "status": "active",
+    "philatelicInventory": {
+      "MintCommemorativeStamps": 20,
+      "MintDefinitiveStamps": 15,
+      "TopMarginalBlock": 5,
+      "BottomMarginalBlock": 7,
+      "FullSheet": 3,
+      "FirstDayCoversAffixed": 10,
+      "FirstDayCoversBlank": 8,
+      "InformationBrochureAffixed": 5,
+      "InformationBrochureBlank": 6,
+      "AnnualStampPack": 2,
+      "ChildrenSpecialAnnualStampPack": 1,
+      "SpecialCollectorsStampPack": 3,
+      "FirstDayCoverPack": 4,
+      "MiniSheetSouvenirSheet": 12,
+      "PostalStationery": 6,
+      "OtherItems": "Custom commemorative stamps"
+    }
+  }
+
+
 
 
 
