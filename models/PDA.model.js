@@ -1,24 +1,23 @@
-// models/PDA.js
 const mongoose = require('mongoose');
 
 const pdaSchema = new mongoose.Schema({
-  account_number: { type: String, required: true, unique: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
-  balance: { type: Number, default: 0 },
-  preferences: {
-    item_types: [String],
+  account_number: { type: String, unique: true },  // Automatically generated
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // From request body
+  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },  // From request body
+  balance: { type: Number, default: 0 },  // Optional in request body, default to 0
+  preferences: {  // Optional in request body
+    item_types: [String], 
     notification_preferences: {
-      email: Boolean,
-      sms: Boolean
+      email: { type: Boolean, default: false },
+      sms: { type: Boolean, default: false }
     }
   },
-  status: {
+  status: {  // Optional in request body, default to 'active'
     type: String,
     enum: ['active', 'inactive', 'suspended'],
     default: 'active'
   },
-  philatelicInventory: {
+  philatelicInventory: {  // Optional in request body, can be left empty or partially filled
     MintCommemorativeStamps: { type: Number, default: 0 },
     MintDefinitiveStamps: { type: Number, default: 0 },
     TopMarginalBlock: { type: Number, default: 0 },

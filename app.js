@@ -22,11 +22,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes); 
-
-app.use('/api/pda', pdaRoutes); 
-
 app.use('/api/postal-circles', postalCircleRoutes);
 app.use('/api/philatelic-items', philatelicItemRoutes);
+app.use('/api/pda', pdaRoutes); 
 app.use('/api/events', eventRoutes); 
 app.use('/api/news', newsRoutes);
 app.use('/api/user', userRoutes);
