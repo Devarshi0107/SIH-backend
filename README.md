@@ -6,7 +6,7 @@ This document provides an overview of the pending API endpoints and their detail
 
 | API | Status | Assigned To | Notes |
 | --- | ------ | ----------- | ----- |
-| Login and Signup (without Google Sign-In) - User | Pending | Vasu |  |
+| Login and Signup (without Google Sign-In) - User | Complete | Vasu |  |
 | Login (without Google Sign-In) - Postal Circle | Pending | Vasu | |
 | Login and Signup (without Google Sign-In) - Admin | Pending | Vasu | |
 | Login and Signup (with Google Sign-In) - User | Pending | Kirtan | |
