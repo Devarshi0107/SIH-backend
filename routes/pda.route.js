@@ -14,7 +14,7 @@ const authMiddleware = require('../middlewares/authenticateuser');
 
 const router = express.Router();
 
-router.get('/',isAdmin, getPDAs);
+router.get('/',authMiddleware , isAdmin, getPDAs);
 router.get('/user/:userId/accounts', authMiddleware, getUserPDAccounts);
 router.post('/',authMiddleware, createPDA);
 router.get('/:id', getPDAById);
