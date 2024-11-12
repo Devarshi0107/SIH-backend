@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+const cartItemSchema = new mongoose.Schema({
+  PhilatelicItem: { type: mongoose.Schema.Types.ObjectId, ref: 'PhilatelicItem' },
+  quantity: { type: Number,  min: 1 }
+});
+
 // User Schema
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
@@ -18,6 +23,7 @@ const userSchema = new mongoose.Schema({
       enum: ['user', 'admin'],
       default: 'user'
     },
+    cart: [cartItemSchema],
     coins: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     isSubscribed: { type: Boolean, default: false },
