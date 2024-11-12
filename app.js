@@ -9,15 +9,17 @@ const authRoutes = require('./routes/auth.route');
 const pdaRoutes = require('./routes/pda.route');
 const eventRoutes = require('./routes/event.route');
 const newsRoutes = require('./routes/news.route');
-const userRoutes = require('./routes/user.routes');
+const userRoutes = require('./routes/user.route');
 const walletRoutes = require('./routes/wallet.route');
 
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 connectDB();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/auth', authRoutes); 
 

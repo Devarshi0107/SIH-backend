@@ -44,7 +44,16 @@ exports.login = async (req, res) => {
        
         // Generate JWT token
         const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-        res.status(200).json({ message: 'Login successful', token });
+
+        // Set the token as an HTTP-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === 'production', // Set to true in production
+            sameSite: 'strict', // Helps prevent CSRF attacks
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        res.status(200).json({ message: 'Login successful' });
     } catch (error) {
         res.status(500).json({ message: 'Server error. Please try again later.' });
     }
@@ -52,6 +61,10 @@ exports.login = async (req, res) => {
 
 // Logout
 exports.logout = (req, res) => {
-    res.status(200).json({ message: 'Logout successful' });
+    
+    // Clear the authentication token cookie, if it exists
+    res.clearCookie('token'); // Replace 'token' with the actual name of your auth cookie, if different
+    
+    // Respond with a success message
+    return res.status(200).json({ message: 'Logout successful' });
 };
-

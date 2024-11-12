@@ -6,7 +6,8 @@ const postalCircleSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
+  // if two admin then we know that which admin created this postCircle
   region: { type: String, required: true },
   state: { type: String, required: true },
   address: {

@@ -5,7 +5,8 @@ const {
     getPostalCircles, 
     createPostalCircle, 
     loginPostalCircle, 
-    changePostalCirclePassword 
+    changePostalCirclePassword ,
+    logout
   } = require('../controllers/postalCircle.controller');
 const isAdmin = require('../middlewares/isAdmin');
 const router = express.Router();
@@ -14,8 +15,9 @@ const authenticatePostalCircle = require('../middlewares/authenticatePostalCircl
 
 
 router.get('/', authenticateisuser,isAdmin, getPostalCircles);
-router.post('/', authenticateisuser, isAdmin, createPostalCircle);
+router.post('/', authenticateisuser,isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
+router.post('/logout', logout);  // remove query
 router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword); 
 
 
