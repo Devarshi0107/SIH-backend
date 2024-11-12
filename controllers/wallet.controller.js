@@ -66,7 +66,7 @@ exports.verifyPayment = async (req, res) => {
             if (user) {
                 user.wallet_balance += amountData.amount; // Add the payment amount to the user's wallet balance
                 await user.save();
-                console.log(`Updated wallet balance for user ${user.email}`);
+               
             }
         }
     } catch (error) {
