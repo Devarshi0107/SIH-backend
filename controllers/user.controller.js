@@ -1,5 +1,7 @@
 const User = require('../models/user.model');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
+const Wishlist = require('../models/Wishlist.model');
+const mongoose = require('mongoose');
 
 exports.addToCart = async (req, res) => {
   try {
@@ -27,5 +29,82 @@ exports.addToCart = async (req, res) => {
     res.status(200).json({ message: "Item added to cart", cart: user.cart });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+// Add Product to Wishlist (Corrected)
+exports.addProductToWishlist = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const product = await PhilatelicItem.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    let wishlist = await Wishlist.findOne({ user: req.user._id });
+    if (!wishlist) {
+      wishlist = new Wishlist({ user: req.user._id, PhilatelicItem: [productId] });
+    } else {
+      if (!wishlist.PhilatelicItem.includes(productId)) {
+        wishlist.PhilatelicItem.push(productId);
+      }
+    }
+
+    await wishlist.save();
+    res.status(200).json({ message: 'Product added to wishlist', wishlist });
+  } catch (error) {
+    console.error('Error adding product to wishlist:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get Wishlist (Corrected)
+exports.getWishlist = async (req, res) => {
+  try {
+   
+    const wishlist = await Wishlist.find({ user: req.user._id })
+    .populate({
+      path: 'PhilatelicItem',
+      match: { deleted: false }
+    });
+  
+
+    if (!wishlist) {
+      return res.status(404).json({ error: 'Wishlist not found' });
+    }
+    res.json(wishlist);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Remove Product from Wishlist (Corrected)
+// Remove Product from Wishlist (Corrected)
+exports.removeProductFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    // Ensure that productId is valid
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: 'Invalid product ID' });
+    }
+
+    // Remove the product from the wishlist
+    const result = await Wishlist.updateOne(
+      { user: req.user._id },
+      { $pull: { PhilatelicItem: productId } }
+    );
+
+    // Check if any documents were modified
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Product not found in wishlist' });
+    }
+
+    // Fetch and return the updated wishlist
+    const updatedWishlist = await Wishlist.findOne({ user: req.user._id }).populate('PhilatelicItem');
+    res.status(200).json({ message: 'Product removed from wishlist', wishlist: updatedWishlist });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

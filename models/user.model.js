@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema({
   PhilatelicItem: { type: mongoose.Schema.Types.ObjectId, ref: 'PhilatelicItem' },
-  quantity: { type: Number,  min: 1 }
+  quantity: { type: Number, min: 1 }
 });
 
 // User Schema
@@ -30,5 +30,5 @@ const userSchema = new mongoose.Schema({
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
   }, { timestamps: true });
-  
-module.exports=new mongoose.model('Users',userSchema);;
+
+module.exports = mongoose.model('User', userSchema);

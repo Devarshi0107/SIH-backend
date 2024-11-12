@@ -20,6 +20,7 @@ const philatelicItemSchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'out_of_stock'],
     default: 'active'
   },
+  deleted: { type: Boolean, default: false } ,
   created_at: { type: Date, default: Date.now }
 }, { timestamps: true });
 
