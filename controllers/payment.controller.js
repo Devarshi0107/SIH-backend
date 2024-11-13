@@ -5,10 +5,16 @@ const PostalCircle = require('../models/PostalCircle.model');
 const PhilatelicItem = require('../models/PhilatelicItem.model'); 
 const WalletTransaction = require('../models/WalletTransaction.model');
 const stripe = require('../config/stripe.config');
+const { createShiprocketOrder } = require('../services/shiprocket.service');
+const JWT_SECRET = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken');
+
+
 
 // controllers/payment.controller.js
 exports.processPaymentAndOrder = async (req, res) => {
   const { itemId, quantity, paymentMethod, postalCircleId } = req.body;
+  console.log(req.user);
   const userId = req.user._id;
 
   try {
@@ -95,27 +101,21 @@ exports.processPaymentAndOrder = async (req, res) => {
   }
 };
 
-
-// controllers/payment.controller.js
 exports.verifyPayment = async (req, res) => {
   const { session_id } = req.query;
 
   try {
-    // Retrieve the Stripe session with expanded line items
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ["line_items.data.price.product"],
     });
 
-    // Extract session details
     const userId = session.metadata.userId;
     const itemId = session.metadata.itemId;
     const quantity = parseInt(session.metadata.quantity, 10);
     const postalCircleId = session.metadata.postalCircleId;
-    const totalAmount = session.amount_total / 100; // Convert cents to main currency unit
+    const totalAmount = session.amount_total / 100;
 
-    // Check if payment was successful
     if (session.payment_status === 'paid') {
-      // Find user, item, and postal circle by their IDs
       const user = await User.findById(userId);
       const item = await PhilatelicItem.findById(itemId);
       const postalCircle = await PostalCircle.findById(postalCircleId);
@@ -124,18 +124,15 @@ exports.verifyPayment = async (req, res) => {
         return res.status(404).json({ message: 'User, item, or postal circle not found' });
       }
 
-      // Update postal circle revenue
       postalCircle.total_revenue += totalAmount;
       await postalCircle.save();
 
-      // Reduce stock quantity of the item
       item.stock -= quantity;
       if (item.stock < 0) {
-        item.stock = 0; // Ensure stock does not go negative
+        item.stock = 0;
       }
       await item.save();
 
-      // Update or create the order with payment confirmation
       const order = await Order.create({
         user: userId,
         postalCircle: postalCircleId,
@@ -146,8 +143,13 @@ exports.verifyPayment = async (req, res) => {
         orderStatus: 'processing'
       });
 
+      // Create Shiprocket order and save Shiprocket order ID
+      const shiprocketOrderId = await createShiprocketOrder(order, user, item);
+      order.shiprocketOrderId = shiprocketOrderId;
+      await order.save();
+
       res.status(200).json({
-        message: 'Payment verified and order placed successfully',
+        message: 'Payment verified, order placed, and Shiprocket order created successfully',
         order
       });
     } else {
@@ -156,5 +158,49 @@ exports.verifyPayment = async (req, res) => {
   } catch (error) {
     console.error("Error verifying payment:", error);
     res.status(500).json({ error: "Failed to verify payment and update order details" });
+  }
+};
+
+// controllers/payment.controller.js
+const { getShiprocketOrderStatus } = require('../services/shiprocket.service');
+exports.checkOrderStatus = async (req, res) => {
+  const shiprocketOrderId = req.params.shiprocketOrderId; // Get the Shiprocket Order ID from params
+
+
+  try {
+    // Fetch the order by Shiprocket order ID from the database
+    const order = await Order.findOne({ shiprocketOrderId });  // Query by shiprocketOrderId field
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Fetch the current status from Shiprocket
+    const shiprocketStatus = await getShiprocketOrderStatus(order.shiprocketOrderId);  // Pass shiprocketOrderId to get the status
+
+    // Map Shiprocket status to internal statuses if necessary
+    let internalStatus;
+    switch (shiprocketStatus) {
+      case 'SELF FULFILLED':
+        internalStatus = 'delivered';
+        break;
+      case 'CANCELED':
+        internalStatus = 'cancelled';
+        break;
+      default:
+        internalStatus = 'processing';
+    }
+
+    // Update the order status in the database
+    order.orderStatus = internalStatus;
+    await order.save();
+
+    res.status(200).json({
+      message: 'Order status updated successfully',
+      order,
+    });
+  } catch (error) {
+    console.error("Error checking order status:", error);
+    res.status(500).json({ error: "Failed to check order status" });
   }
 };

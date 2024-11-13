@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: { type: String, enum: ['wallet', 'stripe'], required: true },
   paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
   orderStatus: { type: String, enum: ['processing', 'shipped', 'delivered', 'cancelled'], default: 'processing' },
+  shiprocketOrderId: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
