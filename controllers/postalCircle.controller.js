@@ -126,19 +126,34 @@ exports.loginPostalCircle = async (req, res) => {
   try {
     const postalCircle = await PostalCircle.findOne({ unique_id });
     if (!postalCircle) {
-      return res.status(404).json({ message: 'Postal Circle not found' });
+      return res.status(404).json({ message: "Postal Circle not found" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, postalCircle.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      postalCircle.password
+    );
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid password' });
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: postalCircle._id, role: 'postalCircle' }, JWT_SECRET, { expiresIn: '1d' });
-    const message = postalCircle.isDefaultPassword 
-      ? 'Login successful. Please change your password as this is the default password.' 
-      : 'Login successful';
+    const token = jwt.sign(
+      { id: postalCircle._id, role: "postalCircle" },
+      JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+    const message = postalCircle.isDefaultPassword
+      ? "Login successful. Please change your password as this is the default password."
+      : "Login successful";
+
+    // Set the token as an HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === 'production', // Set to true in production
+      sameSite: "strict", // Helps prevent CSRF attacks
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
 
     res.status(200).json({ message, token });
   } catch (error) {
@@ -176,6 +191,7 @@ exports.changePostalCirclePassword = async (req, res) => {
   }
 };
 
+//logout
 exports.logout = (req, res) => {
     
   // Clear the authentication token cookie, if it exists
