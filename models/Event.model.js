@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  postalCircle: { type: String, required: true },
+  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
   image: { type: String },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },

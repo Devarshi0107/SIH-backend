@@ -7,12 +7,15 @@ const {
   updateEvent,
   deleteEvent
 } = require('../controllers/event.controller');
+const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 const router = express.Router();
 
 router.get('/', getEvents);
-router.post('/', createEvent);
 router.get('/:id', getEventById);
-router.put('/:id', updateEvent);
-router.delete('/:id', deleteEvent);
+
+router.post('/',authenticatePostalCircle,createEvent);
+
+router.put('/:id',authenticatePostalCircle,updateEvent);
+router.delete('/:id', authenticatePostalCircle,deleteEvent);
 
 module.exports = router;

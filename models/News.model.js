@@ -20,7 +20,7 @@ const newsSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String },
-  postalCircle: { type: String, required: true },
+  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
   postedTime: { type: Date, default: Date.now },
   youtubeUrl: { type: String }  // Add this field for YouTube URL
 }, { timestamps: true });

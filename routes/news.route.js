@@ -7,12 +7,13 @@ const {
   updateNews,
   deleteNews
 } = require('../controllers/news.controller');
+const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 const router = express.Router();
 
 router.get('/', getNews);
-router.post('/', createNews);
+router.post('/',authenticatePostalCircle,createNews);
 router.get('/:id', getNewsById);
-router.put('/:id', updateNews);
-router.delete('/:id', deleteNews);
+router.put('/:id',authenticatePostalCircle,updateNews);
+router.delete('/:id',authenticatePostalCircle,deleteNews);
 
 module.exports = router;
