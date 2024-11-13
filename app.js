@@ -11,6 +11,7 @@ const eventRoutes = require('./routes/event.route');
 const newsRoutes = require('./routes/news.route');
 const userRoutes = require('./routes/user.route');
 const walletRoutes = require('./routes/wallet.route');
+const paymentRoutes = require('./routes/payment.route');
 
 const cookieParser = require('cookie-parser');
 
@@ -30,6 +31,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', createCircleRoutesByAdmin);
+app.use('/api/payment', paymentRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Resource not found' });
