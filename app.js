@@ -29,6 +29,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('api/admin', createCircleRoutesByAdmin);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Resource not found' });
