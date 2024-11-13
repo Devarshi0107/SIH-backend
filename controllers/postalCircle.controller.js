@@ -136,6 +136,7 @@ exports.loginPostalCircle = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign({ id: postalCircle._id, role: 'postalCircle' }, JWT_SECRET, { expiresIn: '1d' });
+    
     const message = postalCircle.isDefaultPassword 
       ? 'Login successful. Please change your password as this is the default password.' 
       : 'Login successful';
@@ -178,6 +179,7 @@ exports.changePostalCirclePassword = async (req, res) => {
 
 exports.logout = (req, res) => {
     
+  console.log(res)
   // Clear the authentication token cookie, if it exists
   res.clearCookie('token'); // Replace 'token' with the actual name of your auth cookie, if different
   

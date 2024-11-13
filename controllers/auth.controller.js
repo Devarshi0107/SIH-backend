@@ -53,7 +53,7 @@ exports.login = async (req, res) => {
             maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
-        res.status(200).json({ message: 'Login successful' });
+        res.status(200).json({ message: 'Login successful',Role:user.role});
     } catch (error) {
         res.status(500).json({ message: 'Server error. Please try again later.' });
     }
@@ -61,10 +61,12 @@ exports.login = async (req, res) => {
 
 // Logout
 exports.logout = (req, res) => {
-    
-    // Clear the authentication token cookie, if it exists
+    // console.log(req);
+
+    // Clear the authentication token cookie
     res.clearCookie('token'); // Replace 'token' with the actual name of your auth cookie, if different
-    
+
+   
     // Respond with a success message
-    return res.status(200).json({ message: 'Logout successful' });
+    return res.status(200).json({ message: 'Logout successful'});
 };

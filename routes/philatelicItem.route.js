@@ -7,7 +7,7 @@ const authMiddleware = require('../middlewares/authenticateuser');
 
 const router = express.Router();
 
-router.get('/',authMiddleware, getPhilatelicItems);
+router.get('/',getPhilatelicItems); // without login items can retrive so middleware is not  used
 router.post('/',authenticatePostalCircle, createPhilatelicItem);
 
 module.exports = router;
