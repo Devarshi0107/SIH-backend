@@ -1,4 +1,4 @@
-const User = require('../models/user.model');
+const User = require('../models/User.model');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
 const Wishlist = require('../models/Wishlist.model');
 const mongoose = require('mongoose');
@@ -106,5 +106,43 @@ exports.removeProductFromWishlist = async (req, res) => {
     res.status(200).json({ message: 'Product removed from wishlist', wishlist: updatedWishlist });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+
+// Update user profile controller
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // User ID from auth middleware
+    const updates = req.body; // Data to update
+
+    // Allowed fields to update
+    const allowedUpdates = ["name", "phone", "address"];
+    const updateFields = {};
+
+    // Only include allowed fields in the update
+    for (let key of allowedUpdates) {
+      if (updates[key] !== undefined) {
+        updateFields[key] = updates[key];
+      }
+    }
+
+    // Update user profile and return updated user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 };

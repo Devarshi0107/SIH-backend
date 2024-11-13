@@ -1,5 +1,5 @@
 const PostalCircle = require("../models/PostalCircle.model")
-const User = require("../models/user.model");
+const User = require("../models/User.model");
 const PDA = require("../models/PDA.model");
 
 //get total postal circles

@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+const User = require('../models/User.model');
 const dotenv = require('dotenv');
 require('dotenv').config();
 
 module.exports = async (req, res, next) => {
   // Retrieve token from the cookies
   const token = req.cookies.token;
-  console.log("Token from cookie:", token);
+  // console.log("Token from cookie:", token);
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded);
+    // console.log("Decoded token:", decoded);
     
     const user = await User.findById(decoded.id);
     if (!user) {
