@@ -22,7 +22,7 @@ exports.getUserPDAccounts = async (req, res) => {
 // Get all PDA accounts for Admin
 exports.getPDAs = async (req, res) => {
   try {
-    const pdaAccounts = await PDA.find().populate('postal_circle');
+    const pdaAccounts = await PDA.find().populate("postal_circle");
     res.status(200).json(pdaAccounts);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -75,7 +75,7 @@ exports.getPDAById = async (req, res) => {
 // Update a PDA account by ID
 exports.updatePDA = async (req, res) => {
   try {
-    const pda = await PDA.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const pda = await PDA.findByIdAndUpdate(req.params.id, { philatelicInventory: req.body.philatelicInventory }, { new: true });
     if (!pda) return res.status(404).json({ message: 'PDA not found' });
     res.status(200).json(pda);
   } catch (error) {
