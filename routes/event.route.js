@@ -1,21 +1,22 @@
-// routes/eventRoutes.js
 const express = require('express');
 const {
   getEvents,
   createEvent,
   getEventById,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  getUpcomingEvents // Import the new function
 } = require('../controllers/event.controller');
 const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 const router = express.Router();
 
 router.get('/', getEvents);
+router.get('/upcoming', getUpcomingEvents);
+router.post('/', createEvent);
 router.get('/:id', getEventById);
+router.put('/:id', updateEvent);
+router.delete('/:id', deleteEvent);
 
-router.post('/',authenticatePostalCircle,createEvent);
-
-router.put('/:id',authenticatePostalCircle,updateEvent);
-router.delete('/:id', authenticatePostalCircle,deleteEvent);
+// New route for upcoming events
 
 module.exports = router;

@@ -65,3 +65,14 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get upcoming events
+exports.getUpcomingEvents = async (req, res) => {
+  try {
+    const today = new Date();
+    const events = await Event.find({ startDate: { $gt: today } });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

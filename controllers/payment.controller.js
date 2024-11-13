@@ -14,7 +14,7 @@ const jwt = require('jsonwebtoken');
 // controllers/payment.controller.js
 exports.processPaymentAndOrder = async (req, res) => {
   const { itemId, quantity, paymentMethod, postalCircleId } = req.body;
-  console.log(req.user);
+
   const userId = req.user._id;
 
   try {
@@ -66,6 +66,10 @@ exports.processPaymentAndOrder = async (req, res) => {
         orderStatus: 'processing'
       });
 
+      // Create Shiprocket order and save Shiprocket order ID
+      const shiprocketOrderId = await createShiprocketOrder(order, user, item);
+      order.shiprocketOrderId = shiprocketOrderId;
+      await order.save();
       res.status(200).json({ message: 'Order placed using wallet balance', order });
 
     } else if (paymentMethod === 'stripe') {

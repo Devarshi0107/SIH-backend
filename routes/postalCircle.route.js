@@ -14,7 +14,7 @@ const authenticateisuser = require('../middlewares/authenticateuser');
 const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 
 
-router.get('/', authenticateisuser,isAdmin, getPostalCircles);
+router.get('/', authenticateisuser, getPostalCircles);
 router.post('/', authenticateisuser,isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
