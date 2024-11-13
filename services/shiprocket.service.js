@@ -67,7 +67,7 @@ const response = await axios.post(
 async function getShiprocketOrderStatus(orderId) {
   try {
     const token = await getShiprocketToken();
-    console.log(orderId);
+  
     const response = await axios.get(
       `https://apiv2.shiprocket.in/v1/external/orders/show/${orderId}`,
       {
@@ -76,7 +76,7 @@ async function getShiprocketOrderStatus(orderId) {
         },
       }
     );
-console.log(response);
+
     return response.data.data.status;  // Adjust this based on the actual response structure from Shiprocket
   } catch (error) {
     console.error('Error fetching Shiprocket order status:', error.message);
