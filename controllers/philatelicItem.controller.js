@@ -11,8 +11,10 @@ exports.getPhilatelicItems = async (req, res) => {
 };
 
 exports.createPhilatelicItem = async (req, res) => {
+  const postal_circle = req.postalCircleId
+  console.log("PostCircle ID : ",postal_circle);
   try {
-    const philatelicItem = new PhilatelicItem(req.body);
+    const philatelicItem = new PhilatelicItem({...req.body, postal_circle});
     await philatelicItem.save();
     res.status(201).json(philatelicItem);
   } catch (error) {
