@@ -4,7 +4,10 @@ const News = require('../models/News.model.js');
 // Get all news items
 exports.getNews = async (req, res) => {
   try {
-    const news = await News.find();
+    const news = await News.find().populate({
+      path: 'postal_circle', // Field to populate in Event schema
+      select: 'name' // Only retrieve the 'name' field from PostalCircle
+    });
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -13,8 +16,9 @@ exports.getNews = async (req, res) => {
 
 // Create a new news item
 exports.createNews = async (req, res) => {
+  const postal_circle = req.postalCircleId
   try {
-    const news = new News(req.body);
+    const news = new News({...req.body, postal_circle});
     await news.save();
     res.status(201).json(news);
   } catch (error) {

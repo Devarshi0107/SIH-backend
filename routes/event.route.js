@@ -7,6 +7,7 @@ const {
   deleteEvent,
   getUpcomingEvents // Import the new function
 } = require('../controllers/event.controller');
+const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 const router = express.Router();
 
 router.get('/', getEvents);

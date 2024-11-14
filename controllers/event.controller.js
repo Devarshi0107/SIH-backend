@@ -4,17 +4,22 @@ const Event = require('../models/Event.model');
 // Get all events
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().populate({
+      path: 'postal_circle', // Field to populate in Event schema
+      select: 'name' // Only retrieve the 'name' field from PostalCircle
+    });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Create a new event
 exports.createEvent = async (req, res) => {
+  const postal_circle = req.postalCircleId
   try {
-    const event = new Event(req.body);
+    const event = new Event({...req.body, postal_circle});
     await event.save();
     res.status(201).json(event);
   } catch (error) {
@@ -25,13 +30,19 @@ exports.createEvent = async (req, res) => {
 // Get an event by ID
 exports.getEventById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate({
+      path: 'postal_circle', // Field to populate in Event schema
+      select: 'name' // Only retrieve the 'name' field from PostalCircle
+    });
+    
     if (!event) return res.status(404).json({ message: 'Event not found' });
+    
     res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update an event by ID
 exports.updateEvent = async (req, res) => {
