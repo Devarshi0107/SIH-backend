@@ -7,9 +7,10 @@ require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Register a new user
+// Register a new user
 exports.register = async (req, res) => {
     try {
-        const { email, password, name, phone  } = req.body;
+        const { email, password, name, phone } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -25,12 +26,26 @@ exports.register = async (req, res) => {
             role: "user"
         });
 
+        // Save the new user to the database
         await newUser.save();
-        res.status(201).json({ message: 'User created successfully', user: newUser });
+
+        // Generate JWT token after saving the user to access `newUser._id`
+        const token = jwt.sign({ id: newUser._id, role: newUser.role }, JWT_SECRET, { expiresIn: '1d' });
+
+        // Set the token as an HTTP-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === 'production', // Set to true in production
+            sameSite: 'strict', // Helps prevent CSRF attacks
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        res.status(201).json({ message: 'User created successfully', user: newUser, token });
     } catch (error) {
         res.status(500).json({ message: 'Server error. Please try again later.' });
     }
 };
+
 
 // Login an existing user
 exports.login = async (req, res) => {

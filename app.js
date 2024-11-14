@@ -1,6 +1,7 @@
 // app.js
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const postalCircleRoutes = require('./routes/postalCircle.route');
 const philatelicItemRoutes = require('./routes/philatelicItem.route');
@@ -21,6 +22,10 @@ connectDB();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow only your frontend origin
+  credentials: true, // Include cookies if needed
+}));
 
 app.use('/api/auth', authRoutes); 
 app.use('/api/postal-circles', postalCircleRoutes);
