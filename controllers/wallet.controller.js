@@ -75,3 +75,20 @@ exports.verifyPayment = async (req, res) => {
     }
 };
   
+
+// Controller to get wallet balance for a user
+exports.getWalletBalance = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id); // Assuming `req.user._id` is set by the `authMiddleware`
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Respond with the user's wallet balance
+        res.status(200).json({ wallet_balance: user.wallet_balance });
+    } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        res.status(500).json({ error: "Failed to fetch wallet balance" });
+    }
+};
