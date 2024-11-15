@@ -6,30 +6,45 @@ const philatelicItemSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Stamps', 'Covers', 'Brochures', 'Packs', 'Souvenirs', 'PostalStationery']
+    enum: [
+      'Stamps', 
+      'Covers', 
+      'Brochures', 
+      'Packs', 
+      'Souvenirs', 
+      'PostalStationery', 
+      'OtherItems'
+    ]
   },
   subitem: {
-    type: String,
-    enum: [
-      'MintCommemorativeStamps', 'MintDefinitiveStamps', 'TopMarginalBlock', 'BottomMarginalBlock', 'FullSheet', // Stamps
-      'FirstDayCoversAffixed', 'FirstDayCoversBlank', 'FirstDayCoverPack', // Covers
-      'InformationBrochureAffixed', 'InformationBrochureBlank', // Brochures
-      'AnnualStampPack', 'ChildrenSpecialAnnualStampPack', 'SpecialCollectorsStampPack', // Packs
-      'MiniSheet/SouvenirSheet' // Souvenirs
-    ],
+    type: mongoose.Schema.Types.Mixed, // Flexible field for number or string depending on category
     validate: {
       validator: function(value) {
-        const categoryToSubitems = {
+        const categoryToSubitemType = {
           Stamps: ['MintCommemorativeStamps', 'MintDefinitiveStamps', 'TopMarginalBlock', 'BottomMarginalBlock', 'FullSheet'],
           Covers: ['FirstDayCoversAffixed', 'FirstDayCoversBlank', 'FirstDayCoverPack'],
           Brochures: ['InformationBrochureAffixed', 'InformationBrochureBlank'],
           Packs: ['AnnualStampPack', 'ChildrenSpecialAnnualStampPack', 'SpecialCollectorsStampPack'],
-          Souvenirs: ['MiniSheet/SouvenirSheet']
+          Souvenirs: ['MiniSheet/SouvenirSheet'],
+          PostalStationery: 'number', // PostalStationery expects a number (e.g., quantity, identifier, postal number)
+          OtherItems: 'string' // OtherItems expects a string (e.g., name or description of the item)
         };
-        
-        // Check if the current category allows the given subitem
-        if (!value) return true; // Allow subitem to be empty for PostalStationery
-        return categoryToSubitems[this.category]?.includes(value);
+
+        // If subitem is not provided, allow it to be empty for some categories
+        if (!value) return true; 
+
+        // For PostalStationery, value must be a number
+        if (this.category === 'PostalStationery') {
+          return typeof value === 'number';
+        }
+
+        // For OtherItems, value must be a string
+        if (this.category === 'OtherItems') {
+          return typeof value === 'string';
+        }
+
+        // For other categories, validate against a predefined list of subitems
+        return categoryToSubitemType[this.category]?.includes(value);
       },
       message: props => `${props.value} is not a valid subitem for the selected category`
     }
