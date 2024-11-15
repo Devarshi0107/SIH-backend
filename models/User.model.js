@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
     coins: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     isSubscribed: { type: Boolean, default: false },
+    profileImage: { type: String }, 
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
   }, { timestamps: true });
