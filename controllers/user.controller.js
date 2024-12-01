@@ -127,6 +127,11 @@ exports.updateUserProfile = async (req, res) => {
       }
     }
 
+    // Handle profile image if uploaded
+    if (req.file) {
+      updateFields.profileImage = req.file.path; // Store path of uploaded image
+    }
+
     // Update user profile and return updated user
     const updatedUser = await User.findByIdAndUpdate(
       userId,

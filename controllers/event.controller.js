@@ -1,25 +1,30 @@
 // controllers/eventController.js
 const Event = require('../models/Event.model');
 
-// Get all events
-exports.getEvents = async (req, res) => {
+
+
+// Get event by ID, only if approved
+exports.getEventById = async (req, res) => {
   try {
-    const events = await Event.find().populate({
-      path: 'postal_circle', // Field to populate in Event schema
-      select: 'name' // Only retrieve the 'name' field from PostalCircle
-    });
-    res.status(200).json(events);
+    const event = await Event.findOne({ 
+      _id: req.params.id, 
+      isApproved: true 
+    }).populate('postal_circle', 'name');
+    
+    if (!event) return res.status(404).json({ message: 'Event not found or not approved' });
+    res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
 
-// Create a new event
+
+// controllers/event.controller.js
 exports.createEvent = async (req, res) => {
-  const postal_circle = req.postalCircleId
+  const postal_circle = req.postalCircleId;
   try {
-    const event = new Event({...req.body, postal_circle});
+    const event = new Event({ ...req.body, postal_circle, isApproved: false });
     await event.save();
     res.status(201).json(event);
   } catch (error) {
@@ -27,33 +32,39 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-// Get an event by ID
-exports.getEventById = async (req, res) => {
+// Fetch only approved events  , get all events
+exports.getEvents = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate({
-      path: 'postal_circle', // Field to populate in Event schema
-      select: 'name' // Only retrieve the 'name' field from PostalCircle
-    });
-    
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    
-    res.status(200).json(event);
+    const events = await Event.find({ isApproved: true }).populate('postal_circle', 'name');
+    res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
 
-// Update an event by ID
+// controllers/event.controller.js
 exports.updateEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.status(200).json(event);
+    // Retrieve the existing event
+    const existingEvent = await Event.findById(req.params.id);
+    if (!existingEvent) return res.status(404).json({ message: 'Event not found' });
+
+    // Only update fields that are explicitly provided in req.body
+    const updateData = { ...req.body };
+
+    // If isApproved is not in req.body, keep the original value
+    if (req.body.isApproved === undefined) {
+      updateData.isApproved = existingEvent.isApproved;
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.status(200).json(updatedEvent);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Delete an event by ID
 exports.deleteEvent = async (req, res) => {
@@ -66,11 +77,14 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
-// Get upcoming events
+// Get upcoming approved events
 exports.getUpcomingEvents = async (req, res) => {
   try {
     const today = new Date();
-    const events = await Event.find({ startDate: { $gt: today } });
+    const events = await Event.find({ 
+      startDate: { $gt: today },
+      isApproved: true // Only fetch approved events
+    });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });

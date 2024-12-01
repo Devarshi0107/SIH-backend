@@ -1,4 +1,5 @@
 const PDA = require('../models/PDA.model');
+const User = require('../models/User.model');
 
 // Get all PDA accounts for a specific user
 exports.getUserPDAccounts = async (req, res) => {
@@ -93,3 +94,43 @@ exports.deletePDA = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.userPdaDetails = async (req, res) => {
+  try {
+      // Find the user based on the JWT token's user data
+      const user = await User.findById(req.user.id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Fetch all PDA accounts associated with the user
+      const pdaAccounts = await PDA.find({ user: user._id })
+          .populate('postal_circle', 'name region state address')
+          .populate('user', 'name email');
+
+      if (pdaAccounts.length === 0) {
+          return res.status(404).json({ message: 'No PDA accounts found for this user' });
+      }
+
+      // Prepare response data
+      const pdaDetails = pdaAccounts.map(pda => ({
+          account_number: pda.account_number,
+          postal_circle: {
+              name: pda.postal_circle.name,
+              region: pda.postal_circle.region,
+              state: pda.postal_circle.state,
+              address: pda.postal_circle.address
+          },
+          balance: pda.balance,
+          status: pda.status,
+          philatelic_inventory: pda.philatelicInventory,
+          lastUpdated: pda.lastUpdated
+      }));
+
+      return res.status(200).json({ pda_accounts: pdaDetails });
+  } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server Error' });
+  }
+}
+

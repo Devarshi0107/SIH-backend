@@ -1,24 +1,11 @@
-// controllers/newsController.js
+const mongoose = require('mongoose');
 const News = require('../models/News.model.js');
 
-// Get all news items
-exports.getNews = async (req, res) => {
-  try {
-    const news = await News.find().populate({
-      path: 'postal_circle', // Field to populate in Event schema
-      select: 'name' // Only retrieve the 'name' field from PostalCircle
-    });
-    res.status(200).json(news);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Create a new news item
+// Create a news item (defaults to isApproved: false)
 exports.createNews = async (req, res) => {
-  const postal_circle = req.postalCircleId
+  const postal_circle = req.postalCircleId;
   try {
-    const news = new News({...req.body, postal_circle});
+    const news = new News({ ...req.body, postal_circle, isApproved: false });
     await news.save();
     res.status(201).json(news);
   } catch (error) {
@@ -26,94 +13,65 @@ exports.createNews = async (req, res) => {
   }
 };
 
-//solved problem : {
-  //   "error": "Cast to ObjectId failed for value \"67322ddb10c9c169dbcf6f77\\n\" (type string) at path \"_id\" for model \"News\""
-  // }
-// Get a news item by ID
-// exports.getNewsById = async (req, res) => {
-//   try {
-//     const news = await News.findById(req.params.id);
-//     if (!news) return res.status(404).json({ message: 'News not found' });
-//     res.status(200).json(news);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-
-
-// Get a news item by ID
-exports.getNewsById = async (req, res) => {
+// Fetch only approved news items
+exports.getNews = async (req, res) => {
   try {
-    // Trim whitespace or newlines from the ID
-    const id = req.params.id.trim();
-
-    // Check if the provided ID is a valid MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid ID format" });
-    }
-
-    const news = await News.findById(id);
-    if (!news) return res.status(404).json({ message: 'News not found' });
+    const news = await News.find({ isApproved: true }).populate('postal_circle', 'name');
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// // Update a news item by ID
-// exports.updateNews = async (req, res) => {
-//   try {
-//     const news = await News.findByIdAndUpdate(req.params.id, req.body, { new: true });
-//     if (!news) return res.status(404).json({ message: 'News not found' });
-//     res.status(200).json(news);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+// Get a news item by ID, only if approved
+exports.getNewsById = async (req, res) => {
+  try {
+    const id = req.params.id.trim();
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
 
-const mongoose = require('mongoose');
+    const news = await News.findOne({ _id: id, isApproved: true });
+    if (!news) return res.status(404).json({ message: 'News not found or not approved' });
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Update a news item by ID
 exports.updateNews = async (req, res) => {
   try {
-    // Trim whitespace or newlines from the ID
     const id = req.params.id.trim();
 
-    // Check if the provided ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    const news = await News.findByIdAndUpdate(id, req.body, { new: true });
-    if (!news) return res.status(404).json({ message: 'News not found' });
-    res.status(200).json(news);
+    // Retrieve the existing news item
+    const existingNews = await News.findById(id);
+    if (!existingNews) return res.status(404).json({ message: 'News not found' });
+
+    const updateData = { ...req.body };
+
+    // Keep the original isApproved status if not explicitly updated in req.body
+    if (req.body.isApproved === undefined) {
+      updateData.isApproved = existingNews.isApproved;
+    }
+
+    const updatedNews = await News.findByIdAndUpdate(id, updateData, { new: true });
+    res.status(200).json(updatedNews);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
-// Delete a news item by ID
-// exports.deleteNews = async (req, res) => {
-//   try {
-//     const news = await News.findByIdAndDelete(req.params.id);
-//     if (!news) return res.status(404).json({ message: 'News not found' });
-//     res.status(200).json({ message: 'News deleted successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-
 // Delete a news item by ID
 exports.deleteNews = async (req, res) => {
   try {
-    // Trim whitespace or newlines from the ID
     const id = req.params.id.trim();
 
-    // Check if the provided ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid ID format" });
     }

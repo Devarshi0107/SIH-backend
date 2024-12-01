@@ -20,13 +20,14 @@ const userSchema = new mongoose.Schema({
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: ['user', 'admin','mediator'],
       default: 'user'
     },
     cart: [cartItemSchema],
     coins: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     isSubscribed: { type: Boolean, default: false },
+    profileImage: { type: String }, 
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
   }, { timestamps: true });

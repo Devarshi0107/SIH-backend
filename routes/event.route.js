@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const {
   getEvents,
   createEvent,
@@ -8,11 +9,12 @@ const {
   getUpcomingEvents // Import the new function
 } = require('../controllers/event.controller');
 const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
-const router = express.Router();
+const isMediator = require('../middlewares/isMediator');
+const authenticateuser = require('../middlewares/authenticateuser');
 
 router.get('/', getEvents);
 router.get('/upcoming', getUpcomingEvents);
-router.post('/', createEvent);
+router.post('/', authenticatePostalCircle, isMediator, createEvent);
 router.get('/:id', getEventById);
 router.put('/:id', updateEvent);
 router.delete('/:id', deleteEvent);

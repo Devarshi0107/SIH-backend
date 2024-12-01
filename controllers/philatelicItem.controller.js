@@ -3,8 +3,8 @@ const PhilatelicItem = require('../models/PhilatelicItem.model');
 
 exports.getPhilatelicItems = async (req, res) => {
   try {
-    const philatelicItems = await PhilatelicItem.find().populate('postal_circle'); 
-    // all details je post circle le item create kari hase teni avse (populate thase)  
+    // Filter items where featured is true
+    const philatelicItems = await PhilatelicItem.find({ featured: true }).populate('postal_circle'); 
     res.status(200).json(philatelicItems);
   } catch (error) {
     res.status(500).json({ error: error.message });

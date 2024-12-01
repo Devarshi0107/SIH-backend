@@ -1,6 +1,8 @@
 const PostalCircle = require("../models/PostalCircle.model")
 const User = require("../models/User.model");
 const PDA = require("../models/PDA.model");
+const News = require('../models/News.model');
+const Event = require('../models/Event.model');
 
 //get total postal circles
 exports.getTotalPostalCircles = async (req, res) =>{
@@ -70,3 +72,25 @@ exports.getTotalIncomeForCurrentMonth = async (req, res) => {
 };
 
 
+
+// Approve a news item
+exports.approveNews = async (req, res) => {
+  try {
+    const news = await News.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
+    if (!news) return res.status(404).json({ message: 'News not found' });
+    res.status(200).json({ message: 'News approved successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Approve an event
+exports.approveEvent = async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.status(200).json({ message: 'Event approved successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
