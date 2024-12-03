@@ -18,7 +18,7 @@ exports.getPostalCircles = async (req, res) => {
 
 // Helper function to generate a unique ID (prefix 'CP' followed by 6 random hex characters)
 function generateUniqueId() {
-  const uuid = 'CP' + crypto.randomBytes(3).toString("hex").toUpperCase(); // 3 bytes -> 6 hex characters
+  const uuid = 'PC' + crypto.randomBytes(3).toString("hex").toUpperCase(); // 3 bytes -> 6 hex characters
   // console.log("Generated Unique ID:", uuid);
   return uuid;
 }
@@ -39,6 +39,7 @@ const transporter = nodemailer.createTransport({
 
 // Function to create and save a new Postal Circle
 exports.createPostalCircle = async (req, res) => {
+  // console.log("Creating",req.userId)
   try {
     const { name, email, region, state, address } = req.body;
 
@@ -62,7 +63,7 @@ exports.createPostalCircle = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      user: req.user._id,
+      user: req.userId,
       region,
       state,
       address,
@@ -195,7 +196,7 @@ exports.changePostalCirclePassword = async (req, res) => {
 //logout
 exports.logout = (req, res) => {
     
-  // console.log(res)
+  console.log(res)
   // Clear the authentication token cookie, if it exists
   res.clearCookie('token'); // Replace 'token' with the actual name of your auth cookie, if different
   

@@ -13,7 +13,7 @@ exports.getPhilatelicItems = async (req, res) => {
 
 exports.createPhilatelicItem = async (req, res) => {
   const postal_circle = req.postalCircleId
-  console.log("PostCircle ID : ",postal_circle);
+  // console.log("PostCircle ID : ",postal_circle);
   try {
     const philatelicItem = new PhilatelicItem({...req.body, postal_circle}); // take postalCircle Id from middleware 
     await philatelicItem.save();
