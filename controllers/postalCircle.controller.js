@@ -163,6 +163,7 @@ exports.loginPostalCircle = async (req, res) => {
 
 // controllers/postalCircle.controller.js
 exports.changePostalCirclePassword = async (req, res) => {
+  console.log("I am postCircle")
   const { unique_id, oldPassword, newPassword } = req.body;
   try {
     const postalCircle = await PostalCircle.findOne({ unique_id });
@@ -181,8 +182,8 @@ exports.changePostalCirclePassword = async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password and reset `isDefaultPassword` flag
-    postalCircle.password = hashedNewPassword;
-    postalCircle.isDefaultPassword = false;
+    // postalCircle.password = hashedNewPassword;
+    // postalCircle.isDefaultPassword = false;
 
     await postalCircle.save();
     res.status(200).json({ message: 'Password changed successfully' });
