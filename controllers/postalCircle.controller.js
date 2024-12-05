@@ -7,9 +7,19 @@ const PostalCircle = require('../models/PostalCircle.model');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
+// exports.getPostalCircles = async (req, res) => {
+//   try {
+//     const postalCircles = await PostalCircle.find();
+//     res.status(200).json(postalCircles);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 exports.getPostalCircles = async (req, res) => {
   try {
-    const postalCircles = await PostalCircle.find();
+    // Use select to specify the fields you want to include
+    const postalCircles = await PostalCircle.find({ active: true }).select('name unique_id');
     res.status(200).json(postalCircles);
   } catch (error) {
     res.status(500).json({ error: error.message });
