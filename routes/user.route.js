@@ -5,7 +5,8 @@ const {
   getWishlist,
   addProductToWishlist,
   removeProductFromWishlist,
-  updateUserProfile 
+  updateUserProfile,
+  getUserDetails 
 } = require('../controllers/user.controller');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authenticateuser');
@@ -34,5 +35,6 @@ router.delete('/wishlist/remove/:productId', authMiddleware, removeProductFromWi
 
 // New route for updating user profile with upload
 router.put('/profile/update', authMiddleware, upload.single('profileImage'), updateUserProfile);
+router.get('/:userId',authMiddleware, getUserDetails);
 
 module.exports = router;
