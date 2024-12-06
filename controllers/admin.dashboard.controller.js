@@ -4,6 +4,15 @@ const PDA = require("../models/PDA.model");
 const News = require('../models/News.model');
 const Event = require('../models/Event.model');
 
+exports.getAllPostCircleDetail = async (req, res) => {
+  try {
+    const postalCircles = await PostalCircle.find(); // Fetch all documents from the collection
+    res.status(200).json({ postalCircles });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving postal circles", error });
+  }
+};
+
 //get total postal circles
 exports.getTotalPostalCircles = async (req, res) =>{
     try {

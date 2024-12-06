@@ -18,7 +18,8 @@ const authenticatePostalCircle = require('../middlewares/authenticatePostalCircl
 router.get('/',getPostalCircles); // for display in pda
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
-router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword); 
+router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword);
+
 
 
 module.exports = router;

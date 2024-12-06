@@ -6,7 +6,7 @@ require('dotenv').config();
 module.exports = async (req, res, next) => {
   // Retrieve token from the cookies
   const token = req.cookies.token;
-  // console.log("Token from cookie:", token);
+  console.log("Token from cookie:", token);
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
