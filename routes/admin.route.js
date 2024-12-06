@@ -14,12 +14,12 @@ const authenticateisuser = require('../middlewares/authenticateuser');
 //Admin controller routes
 
 //Admin dashboard controller routes
-router.get('/total-postal-circles',authenticateisuser,isAdmin,getTotalPostalCircles);
-router.get('/total-users', authenticateisuser,isAdmin,getTotalUsers);
-router.get('/total-pda-accounts',authenticateisuser,isAdmin, getTotalPDAAccounts);
-router.get("/total-income-current-month",authenticateisuser,isAdmin, getTotalIncomeForCurrentMonth);
+router.get('/total-postal-circles',isAdmin,getTotalPostalCircles);
+router.get('/total-users',isAdmin,getTotalUsers);
+router.get('/total-pda-accounts',isAdmin, getTotalPDAAccounts);
+router.get("/total-income-current-month",isAdmin, getTotalIncomeForCurrentMonth);
 
-router.put('/approve-news/:id',authenticateisuser, isAdmin, approveNews);
-router.put('/approve-event/:id', authenticateisuser,isAdmin, approveEvent);
+router.put('/approve-news/:id', isAdmin, approveNews);
+router.put('/approve-event/:id',isAdmin, approveEvent);
 
 module.exports = router;
