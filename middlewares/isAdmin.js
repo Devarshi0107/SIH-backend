@@ -20,10 +20,17 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // new Version
 module.exports = async (req, res, next) => {
-  // const token = req.cookies.token; // Ensure your application sets the token in cookies
-  const token= req.headers.authorization.split(" ")[1] ;
 
-  console.log("cookies in isAdmin:", req.cookies.token);
+  const authHeader = req.headers.authorization;
+  
+  console.log("inside isAdmin:", authHeader);
+  
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: 'Invalid or missing Authorization header' });
+  }
+
+  const token = authHeader.split(" ")[1];
   
   console.log("Isadmin ",token) 
   if (!token) {

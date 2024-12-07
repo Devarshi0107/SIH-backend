@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   origin: 'http://localhost:5173', // Allow only your frontend origin
-  credentials: true, // Include cookies if needed
+  credentials: true // Include cookies if needed
 }));
 
 app.use('/api/auth', authRoutes); 
