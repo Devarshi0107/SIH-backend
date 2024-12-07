@@ -200,3 +200,19 @@ exports.getUserById = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.getUserDetails = async (req, res) => {
+  const { userId } = req.params; // Extract userId from the request parameters
+
+  try {
+    const user = await User.findById(userId).select('-password'); // Fetch user details excluding the password
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving user details", error });
+  }
+};
