@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 3600000 // 1 hour
     });
 
@@ -109,7 +109,7 @@ exports.logout = (req, res) => {
     
     // Clear the authentication token cookie
     res.clearCookie('token'); // Replace 'token' with the actual name of your auth cookie, if different
-
+    
    
     // Respond with a success message
     return res.status(200).json({ message: 'Logout successful'});

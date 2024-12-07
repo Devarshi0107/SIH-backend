@@ -1,30 +1,56 @@
 const mongoose = require('mongoose');
 const News = require('../models/News.model.js');
+const PostalCircleModel = require('../models/PostalCircle.model.js');
 
 // Create a news item (defaults to isApproved: false)
 exports.createNews = async (req, res) => {
-  const postal_circle = req.postalCircleId;
   try {
-    const news = new News({ ...req.body, postal_circle, isApproved: false });
+    const { postalCircle, ...newsData } = req.body;
+
+    // Find the postal circle by its name
+    const postal_circle = await PostalCircleModel.findOne({ name: postalCircle });
+
+    if (!postal_circle) {
+      return res.status(404).json({ message: "Postal Circle not found" });
+    }
+
+    // Create the news document with the postal circle ID
+    const news = new News({
+      ...newsData,
+      postal_circle: postal_circle._id, // Use the ID of the found postal circle
+      isApproved: false, // Set isApproved to false by default
+    });
+
+    // Save the news document
     await news.save();
+
+    // Populate the postal circle name in the response
+    await news.populate('postal_circle', 'name');
+
+    // Send the response
     res.status(201).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Fetch only approved news items
 exports.getNews = async (req, res) => {
   try {
-    const news = await News.find({ isApproved: true }).populate('postal_circle', 'name');
+    // Fetch all news without filtering by isApproved status
+    const news = await News.find().populate('postal_circle', 'name');
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Get a news item by ID, only if approved
 exports.getNewsById = async (req, res) => {
+
+  
   try {
     const id = req.params.id.trim();
 
@@ -60,7 +86,7 @@ exports.updateNews = async (req, res) => {
       updateData.isApproved = existingNews.isApproved;
     }
 
-    const updatedNews = await News.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedNews = await News.findByIdAndUpdate(id, updateData, { new :true });
     res.status(200).json(updatedNews);
   } catch (error) {
     res.status(500).json({ error: error.message });

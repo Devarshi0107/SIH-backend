@@ -1,94 +1,106 @@
+const User = require("../models/User.model");
 
-const User = require('../models/User.model');
-
-const stripe = require('../config/stripe.config');
+const stripe = require("../config/stripe.config");
 
 exports.createPaymentIntent = async (req, res) => {
     const { amount, email, userId } = req.body;
-
+  
+    // console.log("Received formData for metadata:", formData);
+  
     try {
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'inr',
-                        product_data: { name: 'Wallet Balance Top-Up' },
-                        unit_amount: amount * 100,
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: 'payment',
-            success_url: 'http://localhost:5173/checkout-success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url: 'http://localhost:5173/',
-            customer_email: email,
-            metadata: {
-                userId: userId,
-                amount: amount
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "inr",
+              product_data: { name: "Wallet Balance Top-Up" },
+              unit_amount: amount * 100, // Stripe expects amount in smallest currency unit
             },
-        });
-
-        res.send({ url: session.url });
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url:
+          "http://localhost:5173/checkout-success?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url: "http://localhost:5173/",
+        customer_email: email,
+        metadata: {
+          userId: userId,
+          amount: amount,
+        //   formData: JSON.stringify(formData), // Convert formData to a string
+        },
+      });
+  
+      console.log("Session created successfully:", session);
+  
+      res.send({ url: session.url }); // Send the payment link to the client
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      console.error("Error creating session:", error);
+      res.status(500).json({ error: error.message });
     }
-};
+  };
+  
 
 exports.verifyPayment = async (req, res) => {
-    const { session_id } = req.query;
+  const { session_id } = req.query;
 
-    try {
-        // Retrieve the Stripe session with expanded line items
-        const session = await stripe.checkout.sessions.retrieve(session_id, {
-            expand: ["line_items.data.price.product"],
-        });
+  try {
+    // Retrieve the session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    console.log("Session Retrieved:", session);
 
-        // Extract the amount and other details
-        const amountData = {
-            id: session.id,
-            amount: session.amount_total / 100, // Convert cents to main currency unit
-            email: session.customer_details.email,
-            lineItems: session.line_items.data.map((item) => ({
-                name: item.price.product.name,
-                quantity: item.quantity,
-                amount: item.price.unit_amount / 100, // Convert cents to main currency unit
-            })),
-        };
+    // Retrieve the associated payment intent to access metadata
+    // const paymentIntent = await stripe.paymentIntents.retrieve(
+    //   session.payment_intent
+    // );
+    // console.log("Payment Intent Retrieved:", paymentIntent);
 
-        // Send order data to the client for confirmation
-        res.json(amountData);
+    // Parse formData from metadata
+    // const formData = JSON.parse(paymentIntent.metadata.formData);
 
+    // Extract the relevant data
+    const amountData = {
+      id: session.id,
+      amount: session.amount_total / 100, // Convert amount from cents to main currency unit
+      email: session.customer_details.email,
+      payment_status: "paid",
+    //   formData: formData,
+    };
 
-        // Update the user's wallet balance if payment was successful
-        if (session.payment_status === 'paid') {
-            const user = await User.findOne({ email: session.customer_details.email });
-            if (user) {
-                user.wallet_balance += amountData.amount; // Add the payment amount to the user's wallet balance
-                await user.save();
-               
-            }
-        }
-    } catch (error) {
-        console.error("Error verifying payment:", error);
-        // res.status(500).json({ error: "Failed to verify payment and update wallet balance" });
+    console.log("Amount Data:", amountData);
+
+    // Send the extracted data to the client
+    res.json(amountData);
+
+    // Update the user's wallet balance if payment was successful
+    if (session.payment_status === "paid") {
+      const user = await User.findOne({ email: session.customer_details.email });
+      if (user) {
+        user.wallet_balance += amountData.amount; // Add the payment amount to the user's wallet balance
+        await user.save();
+        console.log("User wallet updated successfully.");
+      }
     }
-};
-  
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    res.status(500).json({ error: "Failed to verify payment and update wallet balance." });
+  }
+}
 
 // Controller to get wallet balance for a user
 exports.getWalletBalance = async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id); // Assuming `req.user._id` is set by the `authMiddleware`
+  try {
+    const user = await User.findById(req.user._id); // Assuming `req.user._id` is set by the `authMiddleware`
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Respond with the user's wallet balance
-        res.status(200).json({ wallet_balance: user.wallet_balance });
-    } catch (error) {
-        console.error("Error fetching wallet balance:", error);
-        res.status(500).json({ error: "Failed to fetch wallet balance" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    // Respond with the user's wallet balance
+    res.status(200).json({ wallet_balance: user.wallet_balance });
+  } catch (error) {
+    console.error("Error fetching wallet balance:", error);
+    res.status(500).json({ error: "Failed to fetch wallet balance" });
+  }
 };

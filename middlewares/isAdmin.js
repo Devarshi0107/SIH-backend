@@ -20,8 +20,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // new Version
 module.exports = async (req, res, next) => {
-  const token = req.cookies.token; // Ensure your application sets the token in cookies
-  // console.log("Isadmin ",token) 
+  // const token = req.cookies.token; // Ensure your application sets the token in cookies
+  const token= req.headers.authorization.split(" ")[1] ;
+
+  console.log("cookies in isAdmin:", req.cookies.token);
+  
+  console.log("Isadmin ",token) 
   if (!token) {
     return res.status(401).json({ message: 'Authentication token is required' });
   }

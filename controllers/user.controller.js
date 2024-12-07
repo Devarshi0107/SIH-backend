@@ -1,7 +1,7 @@
-const User = require('../models/User.model');
-const PhilatelicItem = require('../models/PhilatelicItem.model');
-const Wishlist = require('../models/Wishlist.model');
-const mongoose = require('mongoose');
+const User = require("../models/User.model");
+const PhilatelicItem = require("../models/PhilatelicItem.model");
+const Wishlist = require("../models/Wishlist.model");
+const mongoose = require("mongoose");
 
 exports.addToCart = async (req, res) => {
   try {
@@ -17,8 +17,10 @@ exports.addToCart = async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
 
-    const cartItem = user.cart.find(item => item.PhilatelicItem.toString() === itemId);
-    
+    const cartItem = user.cart.find(
+      (item) => item.PhilatelicItem.toString() === itemId
+    );
+
     if (cartItem) {
       cartItem.quantity += quantity;
     } else {
@@ -32,19 +34,21 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-
 // Add Product to Wishlist (Corrected)
 exports.addProductToWishlist = async (req, res) => {
   try {
     const { productId } = req.body;
     const product = await PhilatelicItem.findById(productId);
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     let wishlist = await Wishlist.findOne({ user: req.user._id });
     if (!wishlist) {
-      wishlist = new Wishlist({ user: req.user._id, PhilatelicItem: [productId] });
+      wishlist = new Wishlist({
+        user: req.user._id,
+        PhilatelicItem: [productId],
+      });
     } else {
       if (!wishlist.PhilatelicItem.includes(productId)) {
         wishlist.PhilatelicItem.push(productId);
@@ -52,9 +56,9 @@ exports.addProductToWishlist = async (req, res) => {
     }
 
     await wishlist.save();
-    res.status(200).json({ message: 'Product added to wishlist', wishlist });
+    res.status(200).json({ message: "Product added to wishlist", wishlist });
   } catch (error) {
-    console.error('Error adding product to wishlist:', error.message);
+    console.error("Error adding product to wishlist:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -62,16 +66,13 @@ exports.addProductToWishlist = async (req, res) => {
 // Get Wishlist (Corrected)
 exports.getWishlist = async (req, res) => {
   try {
-   
-    const wishlist = await Wishlist.find({ user: req.user._id })
-    .populate({
-      path: 'PhilatelicItem',
-      match: { deleted: false }
+    const wishlist = await Wishlist.find({ user: req.user._id }).populate({
+      path: "PhilatelicItem",
+      match: { deleted: false },
     });
-  
 
     if (!wishlist) {
-      return res.status(404).json({ error: 'Wishlist not found' });
+      return res.status(404).json({ error: "Wishlist not found" });
     }
     res.json(wishlist);
   } catch (error) {
@@ -87,7 +88,7 @@ exports.removeProductFromWishlist = async (req, res) => {
 
     // Ensure that productId is valid
     if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ error: 'Invalid product ID' });
+      return res.status(400).json({ error: "Invalid product ID" });
     }
 
     // Remove the product from the wishlist
@@ -98,23 +99,28 @@ exports.removeProductFromWishlist = async (req, res) => {
 
     // Check if any documents were modified
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ error: 'Product not found in wishlist' });
+      return res.status(404).json({ error: "Product not found in wishlist" });
     }
 
     // Fetch and return the updated wishlist
-    const updatedWishlist = await Wishlist.findOne({ user: req.user._id }).populate('PhilatelicItem');
-    res.status(200).json({ message: 'Product removed from wishlist', wishlist: updatedWishlist });
+    const updatedWishlist = await Wishlist.findOne({
+      user: req.user._id,
+    }).populate("PhilatelicItem");
+    res.status(200).json({
+      message: "Product removed from wishlist",
+      wishlist: updatedWishlist,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
 // Update user profile controller
 exports.updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id; // User ID from auth middleware
+    const userId = req.body.id; // User ID from auth middleware
     const updates = req.body; // Data to update
+    console.log(updates);
 
     // Allowed fields to update
     const allowedUpdates = ["name", "phone", "address"];
@@ -122,8 +128,29 @@ exports.updateUserProfile = async (req, res) => {
 
     // Only include allowed fields in the update
     for (let key of allowedUpdates) {
-      if (updates[key] !== undefined) {
-        updateFields[key] = updates[key];
+      // if (updates[key] !== undefined) {
+      //   updateFields[key] = updates[key];
+      // }
+      updateFields["name"] = updates["displayName"];
+      updateFields["phone"] = updates["mobile"];
+      updateFields["address"] = updates["address"];
+      if(updates["street"] != ""){
+        updateFields["street"] = updates["street"];
+      }
+      if(updates["city"] != ""){
+        updateFields["city"] = updates["city"];
+      }
+      if(updates["street"] != ""){
+        updateFields["street"] = updates["street"];
+      }
+      if(updates["state"] != ""){
+        updateFields["state"] = updates["state"];
+      }
+      if(updates["pincode"] != ""){
+        updateFields["pincode"] = updates["pincode"];
+      }
+      if(updates["country"] != ""){
+        updateFields["country"] = updates["country"];
       }
     }
 
@@ -140,14 +167,36 @@ exports.updateUserProfile = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json({
-      message: 'Profile updated successfully',
-      user: updatedUser
+      message: "Profile updated successfully",
+      user: updatedUser,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating profile', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating profile", error: error.message });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    // Fetch the user by ID from the database
+    const user = await User.findById(req.params.id);
+
+    // If user is not found, return a 404 response
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return the user data
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+
+    // Return a 500 response for any server errors
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

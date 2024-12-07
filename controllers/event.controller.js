@@ -1,8 +1,6 @@
 // controllers/eventController.js
 const Event = require('../models/Event.model');
 
-
-
 // Get event by ID, only if approved
 exports.getEventById = async (req, res) => {
   try {
@@ -35,7 +33,7 @@ exports.createEvent = async (req, res) => {
 // Fetch only approved events  , get all events
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find({ isApproved: true }).populate('postal_circle', 'name');
+    const events = await Event.find().populate('postal_circle', 'name');
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
