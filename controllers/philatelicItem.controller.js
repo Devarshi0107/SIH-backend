@@ -10,9 +10,25 @@ exports.getPhilatelicItems = async (req, res) => {
   }
 };
 
-exports.getPhilatelicItemsById = async (req,res) => { 
-}
 
+exports.getPhilatelicItemsByPostCircle = async (req, res) => {
+  try {
+    const postalCircleId = req.postCircle._id; // Access the postalCircle attached in middleware
+
+    console.log('postalcircle id', postalCircleId);
+    // Fetch philatelic items associated with the postal circle
+    const philatelicItems = await PhilatelicItem.find({ postal_circle: postalCircleId });
+
+    if (!philatelicItems || philatelicItems.length === 0) {
+      return res.status(404).json({ message: 'No philatelic items found for this postal circle' });
+    }
+
+    res.status(200).json(philatelicItems); // Return the fetched items
+  } catch (error) {
+    console.error('Error fetching philatelic items:', error);
+    res.status(500).json({ message: 'Server error while fetching philatelic items' });
+  }
+};
 // exports.createPhilatelicItem = async (req, res) => {
 //   const postal_circle = req.postalCircleId
 //   // console.log("PostCircle ID : ",postal_circle);

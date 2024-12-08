@@ -23,16 +23,17 @@ module.exports = async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.postalCircleId = decoded.id; // Extract postal circle ID from the token
+    // req.postalCircleId = decoded.id; // Extract postal circle ID from the token
     
     console.log('postalid',decoded.id)
     // Check if the user is a valid PostalCircle
-    const postalCircle = await PostalCircle.findById(req.postalCircleId);
+    const postalCircle = await PostalCircle.findById(decoded.id);
 
     if (!postalCircle || !postalCircle.active) {
       return res.status(403).json({ message: 'Access restricted to PostalCircle users only' });
     }
 
+    req.postCircle = postalCircle;
     next(); // Proceed to the next middleware/route handler
   } catch (error) {
     console.error('Error in authenticatePostalCircle middleware:', error);
