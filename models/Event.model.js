@@ -15,7 +15,13 @@ const eventSchema = new mongoose.Schema({
   registrationLink: { type: String },
   postedDate: { type: Date, default: Date.now },
   lat: { type: Number },
-  lng: { type: Number }
+  lng: { type: Number },
+  status: {
+    type: String,
+    enum: ['accept', 'reject','pending'], // Only 'accept' or 'reject' are allowed
+    default: 'pending', // Default value if not provided
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);
+

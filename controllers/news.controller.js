@@ -7,6 +7,7 @@ exports.createNews = async (req, res) => {
   try {
     const { postalCircle, ...newsData } = req.body;
 
+    console.log("in api",req.body);
     // Find the postal circle by its name
     const postal_circle = await PostalCircleModel.findOne({ name: postalCircle });
 
@@ -35,11 +36,13 @@ exports.createNews = async (req, res) => {
 };
 
 
-// Fetch only approved news items
+// Fetch all new approbed and newly created it handle in UI 
 exports.getNews = async (req, res) => {
   try {
-    // Fetch all news without filtering by isApproved status
-    const news = await News.find().populate('postal_circle', 'name');
+    // Fetch news where status is "accept" or "pending" and isApproved is true
+    const news = await News.find({ 
+      status: { $in: ['accept', 'pending'] },
+    }).populate('postal_circle', 'name');
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -49,8 +52,6 @@ exports.getNews = async (req, res) => {
 
 // Get a news item by ID, only if approved
 exports.getNewsById = async (req, res) => {
-
-  
   try {
     const id = req.params.id.trim();
 

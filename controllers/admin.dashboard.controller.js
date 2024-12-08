@@ -81,26 +81,88 @@ exports.getTotalIncomeForCurrentMonth = async (req, res) => {
   }
 };
 
-
-
 // Approve a news item
 exports.approveNews = async (req, res) => {
   try {
-    const news = await News.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
+    // Update both `isApproved` and `status` fields
+    const news = await News.findByIdAndUpdate(
+      req.params.id,
+      { 
+        isApproved: true,
+        status: 'accept' // Set the status to 'accept' when approved
+      },
+      { new: true } // Return the updated document
+    );
+
     if (!news) return res.status(404).json({ message: 'News not found' });
-    res.status(200).json({ message: 'News approved successfully' });
+
+    res.status(200).json({ message: 'News approved successfully', news });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+}  
+// Approve an event
+exports.approveEvents = async (req, res) => {
+  try {
+    // Update both `isApproved` and `status` fields
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { 
+        isApproved: true,
+        status: 'accept' // Set the status to 'accept' when approved
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    res.status(200).json({ message: 'Event approved successfully', event });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.rejectNews = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the news item by ID and update its status to 'rejected'
+    const news = await News.findByIdAndUpdate(
+      id,
+      { status: 'reject' },
+      { new: true } // Return the updated document
+    );
+
+    if (!news) {
+      return res.status(404).json({ message: 'News item not found' });
+    }
+
+    res.status(200).json({ message: 'News rejected successfully', news });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Approve an event
-exports.approveEvent = async (req, res) => {
+exports.rejectEvents = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.status(200).json({ message: 'Event approved successfully' });
+    const { id } = req.params;
+
+    // Find the event by ID and update its status to 'rejected'
+    const event = await Event.findByIdAndUpdate(
+      id,
+      { status: 'reject' },
+      { new: true } // Return the updated document
+    );
+    console.log(event); 
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({ message: 'Event rejected successfully', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+

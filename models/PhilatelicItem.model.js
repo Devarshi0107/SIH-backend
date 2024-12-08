@@ -52,7 +52,7 @@ const philatelicItemSchema = new mongoose.Schema({
   postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
   price: { type: Number, required: true },
   stock: { type: Number, required: true },
-  images: [String],
+  image: String,
   specifications: {
     year: Number,
     condition: String,

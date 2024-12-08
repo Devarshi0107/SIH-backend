@@ -22,26 +22,24 @@ const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = async (req, res, next) => {
 
   const authHeader = req.headers.authorization;
-  
-  console.log("inside isAdmin:", authHeader);
-  
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: 'Invalid or missing Authorization header' });
   }
 
   const token = authHeader.split(" ")[1];
-  
-  console.log("Isadmin ",token) 
+
   if (!token) {
-    return res.status(401).json({ message: 'Authentication token is required' });
+    return res.status(401).json({ message: 'No token provided' });
   }
+
 
   try {
     // Verify the token
     const decoded = jwt.verify(token, JWT_SECRET);
     req.userId = decoded.id; // Extract user ID from the token
-
+    // console.log("Isadmin admin Id " , decoded.id);
+    
     // Check if the user exists in the database
     const user = await User.findById(req.userId);
 

@@ -16,6 +16,7 @@ const bcrypt = require('bcrypt');
 //   }
 // };
 
+
 exports.getPostalCircles = async (req, res) => {
   try {
     // Use select to specify the fields you want to include

@@ -1,6 +1,9 @@
 const express = require("express");
 const multer = require("multer"); // Multer import
 const {
+  orderHistory,
+  getCartItems,
+  updateDeliveryAddress,
   addToCart,
   getWishlist,
   addProductToWishlist,
@@ -9,7 +12,7 @@ const {
   getUserById,
 } = require("../controllers/user.controller");
 const router = express.Router();
-const authMiddleware = require("../middlewares/authenticateuser");
+const authMiddleware = require("../middlewares/authenticateuser"); //check use
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -28,7 +31,13 @@ const upload = multer({
 
 // Existing routes
 router.get("/:id", getUserById);
+// In your routes file
+router.get('/order-history/:userId', authMiddleware, orderHistory);
+router.get('/cart/items', authMiddleware, getCartItems);
 router.post("/cart/add", authMiddleware, addToCart);
+
+// http://localhost:5173/items/my-cart/checkout
+router.put("/updateDeliveryaddress",authMiddleware,updateDeliveryAddress)
 router.get("/wishlist/:id", authMiddleware, getWishlist);
 router.post("/wishlist/add", authMiddleware, addProductToWishlist);
 router.delete(

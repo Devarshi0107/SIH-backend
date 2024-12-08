@@ -9,12 +9,13 @@ module.exports = async (req, res, next) => {
   // const token = req.cookies.token;
   const authHeader = req.headers.authorization;
 
+  // console.log(`Authentication`, authHeader);
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: 'Invalid or missing Authorization header' });
   }
   
   const token = authHeader.split(" ")[1];
-
+ 
   if (!token) {
     return res.status(401).json({ message: 'Authentication token is required' });
   }
@@ -23,7 +24,8 @@ module.exports = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
     req.postalCircleId = decoded.id; // Extract postal circle ID from the token
-
+    
+    console.log('postalid',decoded.id)
     // Check if the user is a valid PostalCircle
     const postalCircle = await PostalCircle.findById(req.postalCircleId);
 

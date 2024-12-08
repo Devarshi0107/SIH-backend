@@ -1,11 +1,10 @@
 const User = require("../models/User.model");
+const Pda = require("../models/PDA.model");
 
 const stripe = require("../config/stripe.config");
 
 exports.createPaymentIntent = async (req, res) => {
     const { amount, email, userId } = req.body;
-  
-    // console.log("Received formData for metadata:", formData);
   
     try {
       const session = await stripe.checkout.sessions.create({
@@ -28,13 +27,12 @@ exports.createPaymentIntent = async (req, res) => {
         metadata: {
           userId: userId,
           amount: amount,
-        //   formData: JSON.stringify(formData), // Convert formData to a string
         },
       });
   
       console.log("Session created successfully:", session);
   
-      res.send({ url: session.url }); // Send the payment link to the client
+      res.send({ url: session.url }); 
     } catch (error) {
       console.error("Error creating session:", error);
       res.status(500).json({ error: error.message });
@@ -77,10 +75,20 @@ exports.verifyPayment = async (req, res) => {
     if (session.payment_status === "paid") {
       const user = await User.findOne({ email: session.customer_details.email });
       if (user) {
-        user.wallet_balance += amountData.amount; // Add the payment amount to the user's wallet balance
+        user.wallet_balance += amountData.amount;
+         // Add the payment amount to the user's wallet balance
         await user.save();
         console.log("User wallet updated successfully.");
+        const pda = await Pda.findOne({ user: user._id })
+        if(pda){
+          console.log(typeof(amountData.amount));
+          pda.balance += amountData.amount;
+
+          await pda.save();
+          console.log("Pda balance:", pda.balance);
+        }
       }
+
     }
   } catch (error) {
     console.error("Error verifying payment:", error);

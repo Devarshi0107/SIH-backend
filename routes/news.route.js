@@ -12,7 +12,7 @@ const isMediator = require('../middlewares/isMediator');
 const router = express.Router();
 
 router.get('/', getNews);
-router.post('/',authenticatePostalCircle, isMediator,createNews);
+router.post('/',createNews);
 router.get('/:id', getNewsById);
 router.put('/:id',updateNews);
 router.delete('/:id',deleteNews);

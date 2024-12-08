@@ -1,7 +1,69 @@
 const User = require("../models/User.model");
 const PhilatelicItem = require("../models/PhilatelicItem.model");
 const Wishlist = require("../models/Wishlist.model");
+const Order = require("../models/Order.model");
 const mongoose = require("mongoose");
+
+// Update Delivery Address Controller
+exports.updateDeliveryAddress = async (req, res) => {
+  try {
+    const user = req.user; // User data from middleware
+    const { street, city, state, pincode, country } = req.body; // Destructure address details
+
+    // Validate input fields
+    if (!street || !city || !state || !pincode || !country) {
+      return res.status(400).json({
+        message: "All address fields (street, city, state, pincode, country) are required",
+      });
+    }
+
+    // Update user's delivery address
+    user.address = {
+      street,
+      city,
+      state,
+      pincode,
+      country,
+    };
+
+    await user.save(); // Save updated user document
+
+    res.status(200).json({
+      message: "Delivery address updated successfully",
+      address: user.address,
+    });
+  } catch (error) {
+    console.error("Error updating delivery address:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+exports.getCartItems = async (req, res) => {
+  try {
+    // Retrieve the authenticated user from the middleware
+    const userId = req.user._id;
+
+    // Validate that userId is available
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+
+    // Fetch the user's cart with populated PhilatelicItem details
+    const user = await User.findById(userId).populate('cart.PhilatelicItem', 'name price');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Return the user's cart items
+    return res.status(200).json({
+      success: true,
+      cart: user.cart
+    });
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 exports.addToCart = async (req, res) => {
   try {
@@ -214,5 +276,41 @@ exports.getUserDetails = async (req, res) => {
     res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving user details", error });
+  }
+};
+
+
+exports.orderHistory = async (req, res) => {
+  try {
+    // Extract user ID from URL parameters
+    const userId = req.params.userId;
+
+    // Validate that userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid user ID format",
+        details: {
+          userId: userId,
+          userIdType: typeof userId
+        }
+      });
+    }
+
+    // Find all orders for the user
+    const orderHistory = await Order.find({ user: userId })
+      .populate('postalCircle', 'name')
+      .populate('items.philatelicItem', 'name price')
+      .sort({ createdAt: -1 });
+
+    // Respond with the order history
+    return res.status(200).json({ success: true, orderHistory });
+  } catch (error) {
+    console.error("Error fetching order history:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error processing order history",
+      errorDetails: error.message 
+    });
   }
 };

@@ -14,7 +14,7 @@ const generateToken = (user) => {
     }, 
     process.env.JWT_SECRET, 
     { 
-      expiresIn: '1h' 
+      expiresIn: '1d'  // 1 day
     }
   );
 };
@@ -77,7 +77,7 @@ exports.login = async (req, res) => {
 
     // Generate token
     const token = generateToken(user);
-
+    console.log(token);
     // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
