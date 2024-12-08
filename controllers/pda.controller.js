@@ -20,6 +20,27 @@ exports.getUserPDAccounts = async (req, res) => {
   }
 };
 
+
+exports.getPDAbyuserID = async (req, res) => {
+  try {
+    const userId = req.user._id; // Get userId from the authenticated user (from the middleware)
+    console.log("pda",userId);   
+    // Fetch PDA record for the user
+    const philatelicItems = await PDA.findOne({ user: userId })
+      .populate('postal_circle', 'name')  // Populate postal circle name
+      .populate('user', 'name email');   // Optionally populate user information
+
+    // If no PDA record is found for the given userId
+    if (!philatelicItems) {
+      return res.status(404).json({ message: 'Philatelic items not found for this user.' });
+    }
+
+    // Return the fetched information
+    res.status(200).json(philatelicItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 // Get all PDA accounts for Admin
 exports.getPDAs = async (req, res) => {
   try {
