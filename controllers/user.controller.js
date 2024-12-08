@@ -96,6 +96,35 @@ exports.addToCart = async (req, res) => {
   }
 };
 
+exports.removeCartItem = async (req, res) => {
+  try {
+    const userId = req.user._id; // Retrieved from the middleware
+    const { cartItemId } = req.params; // Cart item ID from URL
+
+    console.log("Removing cart item:", cartItemId);
+
+    // Update the user's cart by removing the specified cart item
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { cart: { _id: cartItemId } } }, // Remove the specific cart item
+      { new: true } // Return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User or cart item not found' });
+    }
+
+    res.status(200).json({
+      message: 'Cart item removed successfully',
+      cart: user.cart // Return updated cart
+    });
+  } catch (error) {
+    console.error('Error removing cart item:', error);
+    res.status(500).json({ message: 'Server error while removing cart item' });
+  }
+};
+
+
 // Add Product to Wishlist (Corrected)
 exports.addProductToWishlist = async (req, res) => {
   try {

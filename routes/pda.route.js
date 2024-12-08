@@ -22,7 +22,7 @@ router.get('/user/:userId/accounts', authMiddleware, getUserPDAccounts); // spec
 router.get('/pdaitems', authMiddleware, getPDAbyuserID); // user ni items for pda update mate get karva
 router.post('/',authMiddleware, createPDA); // Creation of PDA by user
 router.get('/:id', getPDAById); // pda id 
-router.put('/:id', updatePDA);
+router.put('/:id', updatePDA); //by pda account id
 router.delete('/:id', deletePDA);
 
   

@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema({
   PhilatelicItem: { type: mongoose.Schema.Types.ObjectId, ref: 'PhilatelicItem' },
-  quantity: { type: Number, min: 1 }
+  quantity: { type: Number, min: 1 },
+  // deleted: { type: Boolean, default: false } // Soft delete flag
 });
 
 // User Schema
