@@ -14,12 +14,11 @@ const authenticateisuser = require('../middlewares/authenticateuser');
 const authenticatePostalCircle = require('../middlewares/authenticatePostalCircle');
 
 
-router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.get('/',getPostalCircles); // for display in pda
+router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
 router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword);
-
 
 
 module.exports = router;

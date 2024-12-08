@@ -61,3 +61,70 @@ exports.createPhilatelicItem = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+exports.updatePhilatelicItem = async (req, res) => {
+  const { itemID } = req.params; // Extract the item ID from URL parameters
+  const updateData = req.body; // The data to be updated
+  console.log(itemID, updateData);
+  try {
+    // Fetch the existing item to validate `subitem` based on the `category`
+    const existingItem = await PhilatelicItem.findById(itemID);
+    // console.log("item",existingItem); 
+    if (!existingItem) {
+      return res.status(404).json({ message: 'Philatelic item not found' });
+    }
+
+    // Validate `subitem` based on the `category`
+    const categoryToSubitemType = {
+      Stamps: ['MintCommemorativeStamps', 'MintDefinitiveStamps', 'TopMarginalBlock', 'BottomMarginalBlock', 'FullSheet'],
+      Covers: ['FirstDayCoversAffixed', 'FirstDayCoversBlank', 'FirstDayCoverPack'],
+      Brochures: ['InformationBrochureAffixed', 'InformationBrochureBlank'],
+      Packs: ['AnnualStampPack', 'ChildrenSpecialAnnualStampPack', 'SpecialCollectorsStampPack'],
+      Souvenirs: ['MiniSheet/SouvenirSheet'],
+      PostalStationery: 'number', // PostalStationery expects a number
+      OtherItems: 'string' // OtherItems expects a string
+    };
+
+    if (updateData.subitem) {
+      const category = updateData.category || existingItem.category; // Use new or existing category
+      const subitemType = categoryToSubitemType[category];
+
+      if (category === 'PostalStationery' && typeof updateData.subitem !== 'number') {
+        return res.status(400).json({ message: 'Subitem must be a number for PostalStationery category' });
+      }
+
+      if (category === 'OtherItems' && typeof updateData.subitem !== 'string') {
+        return res.status(400).json({ message: 'Subitem must be a string for OtherItems category' });
+      }
+
+      if (Array.isArray(subitemType) && !subitemType.includes(updateData.subitem)) {
+        return res.status(400).json({
+          message: `Invalid subitem for category ${category}. Allowed values are: ${subitemType.join(', ')}`
+        });
+      }
+    }
+
+    // Update the philatelic item
+    const updatedItem = await PhilatelicItem.findByIdAndUpdate(
+      itemID,
+      updateData,
+      { new: true, runValidators: true } // Return the updated item and validate
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Philatelic item not found' });
+    }
+
+    res.status(200).json({
+      message: 'Philatelic item updated successfully',
+      data: updatedItem
+    });
+  } catch (error) {
+    console.error('Error updating philatelic item:', error);
+    res.status(500).json({
+      message: 'An error occurred while updating the philatelic item',
+      error: error.message
+    });
+  }
+};

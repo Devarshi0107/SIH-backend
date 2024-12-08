@@ -9,7 +9,6 @@ const pdaSchema = new mongoose.Schema({
     item_types: [String], 
     notification_preferences: {
       email: { type: Boolean, default: false },
-      sms: { type: Boolean, default: false }
     }
   },
   status: {  // Optional in request body, default to 'active'
