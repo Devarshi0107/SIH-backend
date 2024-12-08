@@ -124,6 +124,43 @@ exports.removeCartItem = async (req, res) => {
   }
 };
 
+exports.updateCartItemQuantity = async (req, res) => {
+  try {
+    const userId = req.user._id; // Retrieved from the middleware
+    const { cartItemId } = req.params; // Cart item ID from URL
+    const { delta } = req.body; // Increment/Decrement value from request body
+    console.log('Update item',delta)
+    if (!delta || typeof delta !== 'number') {
+      return res.status(400).json({ message: 'Invalid or missing delta value' });
+    }
+
+    console.log(`Updating cart item ${cartItemId} with delta: ${delta}`);
+
+    // Update the specific cart item's quantity
+    const user = await User.findOneAndUpdate(
+      {
+        _id: userId,
+        'cart._id': cartItemId,
+      },
+      {
+        $inc: { 'cart.$.quantity': delta }, // Increment or decrement the quantity
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User or cart item not found' });
+    }
+
+    res.status(200).json({
+      message: 'Cart item quantity updated successfully',
+      cart: user.cart,
+    });
+  } catch (error) {
+    console.error('Error updating cart item quantity:', error);
+    res.status(500).json({ message: 'Server error while updating cart item quantity' });
+  }
+};
 
 // Add Product to Wishlist (Corrected)
 exports.addProductToWishlist = async (req, res) => {

@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer"); // Multer import
 const {
   addToCart,
+  updateCartItemQuantity,
   getCartItems,
   removeCartItem,
   orderHistory,
@@ -36,7 +37,9 @@ router.get("/:id", getUserById);
 router.get('/order-history/:userId', authMiddleware, orderHistory);
 router.get('/cart/items', authMiddleware, getCartItems);
 router.post("/cart/add", authMiddleware, addToCart);
+router.put("/cart/editItem/:cartItemId", authMiddleware, updateCartItemQuantity);
 router.put("/cart/remove/:cartItemId", authMiddleware, removeCartItem);
+
 
 
 // http://localhost:5173/items/my-cart/checkout
