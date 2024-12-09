@@ -5,6 +5,8 @@ const {
     getTotalOrder,
     getTotalPhilatelicItems,
     getTotalPDAholder,
+    getTotalAncillaryItems,
+    getPDAholderDetails,
     getPostalCircles, 
     createPostalCircle, 
     loginPostalCircle, 
@@ -22,6 +24,9 @@ router.get('/',getPostalCircles); // for display in pda
 router.get('/totalOrder',authenticatePostalCircle,getTotalOrder);
 router.get('/totalItems',authenticatePostalCircle,getTotalPhilatelicItems);
 router.get('/totalPDAholder',authenticatePostalCircle,getTotalPDAholder);
+router.get('/totalAncillaryItems',authenticatePostalCircle,getTotalAncillaryItems);
+
+router.get('/pdaholderDetails',authenticatePostalCircle,getPDAholderDetails);
 
 router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  

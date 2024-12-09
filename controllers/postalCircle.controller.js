@@ -86,6 +86,91 @@ exports.getTotalPDAholder = async(req,res) =>{
   }
 }
 
+exports.getTotalAncillaryItems = async (req,res)=>{
+ try{
+  const postalCircleId = req.postCircle._id;
+
+  if (!postalCircleId) {
+    return res.status(400).json({ message: 'Postal ID is required' });
+  }
+
+  // Count the number of PhilatelicItems with category 'PostalStationery' and the given postal_circle
+  const totalPostalStationery = await PhilatelicItem.countDocuments({
+    postal_circle: postalCircleId,
+    category: 'PostalStationery',
+  });
+
+  // Respond with the count
+  res.status(200).json({totalPostalStationery });
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ message: 'Error fetching total ancillary items', error: error.message });
+}
+
+}
+
+exports.getPDAholderDetails = async (req,res) =>{
+  try {
+    // Get the Postal Circle ID from the authenticated request
+    const postalCircleId = req.postCircle._id;
+
+    // Find all users with philatelicInventory > 0
+    const pdaUsers = await PDA.find({
+      postal_circle: postalCircleId,
+      $or: [
+        { 'philatelicInventory.MintCommemorativeStamps': { $gt: 0 } },
+        { 'philatelicInventory.MintDefinitiveStamps': { $gt: 0 } },
+        { 'philatelicInventory.TopMarginalBlock': { $gt: 0 } },
+        { 'philatelicInventory.BottomMarginalBlock': { $gt: 0 } },
+        { 'philatelicInventory.FullSheet': { $gt: 0 } },
+        { 'philatelicInventory.FirstDayCoversAffixed': { $gt: 0 } },
+        { 'philatelicInventory.FirstDayCoversBlank': { $gt: 0 } },
+        { 'philatelicInventory.InformationBrochureAffixed': { $gt: 0 } },
+        { 'philatelicInventory.InformationBrochureBlank': { $gt: 0 } },
+        { 'philatelicInventory.AnnualStampPack': { $gt: 0 } },
+        { 'philatelicInventory.ChildrenSpecialAnnualStampPack': { $gt: 0 } },
+        { 'philatelicInventory.SpecialCollectorsStampPack': { $gt: 0 } },
+        { 'philatelicInventory.FirstDayCoverPack': { $gt: 0 } },
+        { 'philatelicInventory.MiniSheetSouvenirSheet': { $gt: 0 } },
+        { 'philatelicInventory.PostalStationery': { $gt: 0 } }
+      ]
+    })
+      .populate('user', 'id email name address') // Populate user details
+      .lean(); // Convert documents to plain JavaScript objects
+
+    // Map the result to return filtered fields
+    const result = pdaUsers.map(user => {
+      // Filter philatelicInventory to include only fields with values > 0
+      const filteredInventory = Object.entries(user.philatelicInventory || {})
+        .filter(([key, value]) => value > 0) // Keep only items with values > 0
+        .reduce((acc, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        }, {});
+
+      return {
+        id: user.user._id,
+        email: user.user.email,
+        name: user.user.name,
+        address: user.user.address,
+        philatelicInventory: filteredInventory
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      users: result,
+      postalCircleId
+    });
+  } catch (error) {
+    console.error('Error fetching PDA users with inventory:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve PDA users with inventory',
+      error: error.message
+    });
+  }
+}
 exports.getPostalCircles = async (req, res) => {
   try {
     // Use select to specify the fields you want to include
@@ -95,6 +180,8 @@ exports.getPostalCircles = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // Helper function to generate a unique ID (prefix 'CP' followed by 6 random hex characters)
 function generateUniqueId() {
@@ -156,40 +243,46 @@ exports.createPostalCircle = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Postal Circle Account Details",
-      html: `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-  <div style="background-color: #686800; text-align: center; padding: 20px;">
-    <img src="https://presentations.gov.in/wp-content/uploads/2020/06/India-Post_Preview.png?x81500" alt="India Post Logo" style="width: 100px; height: auto;">
-  </div>
-
-  <div style="background-color: #686800; color: #fff; padding: 20px; text-align: center;">
-    <h2>Welcome to India Post's Postal Circle!</h2>
-  </div>
-
-  <div style="padding: 20px;">
-    <p style="font-size: 16px; color: #333;">Dear Postal Circle,</p>
-    <p style="font-size: 16px; color: #333;">We are pleased to inform you that your account has been successfully created. Below are your login credentials:</p>
-    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
-      <tr>
-        <td style="padding: 10px; font-weight: bold; color: #686800;">Unique ID:</td>
-        <td style="padding: 10px; color: #333;">${unique_id}</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; font-weight: bold; color: #686800;">Password:</td>
-        <td style="padding: 10px; color: #333;">${plainPassword}</td>
-      </tr>
-    </table>
-    <p style="font-size: 16px; margin-top: 20px; color: #333;">To ensure the security of your account, we recommend logging in and changing your password as soon as possible.</p>
-    <p style="font-size: 16px; color: #333;">If you have any questions or need assistance, please don't hesitate to reach out to our support team.</p>
-    <p style="margin-top: 20px; font-size: 14px; color: #666;">Best Regards,<br>India Post - Postal Circle Team</p>
-  </div>
-
-  <div style="background-color: #f1f1f1; color: #666; padding: 10px; text-align: center; font-size: 12px;">
-    © 2024 India Post. All rights reserved.
-  </div>
-  <div style="background-color: #fff; color: #666; padding: 10px; text-align: center; font-size: 12px; border-top: 1px solid #ddd;">
-    <strong>Note:</strong> Please remember to change your password after logging in for the first time to maintain account security.
-  </div>
-</div>`,
+      html:`<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #686800; text-align: center; padding: 20px;">
+        <img src="https://presentations.gov.in/wp-content/uploads/2020/06/India-Post_Preview.png?x81500" alt="India Post Logo" style="width: 100px; height: auto;">
+      </div>
+      <div style="background-color: #686800; color: #fff; padding: 20px; text-align: center;">
+        <h2>Welcome, ${name}!</h2>
+        <h3>Your Postal Circle Account is Now Ready</h3>
+      </div>
+      <div style="padding: 20px;">
+        <p style="font-size: 16px; color: #333;">Dear ${name},</p>
+        <p style="font-size: 16px; color: #333;">
+          Congratulations on successfully registering your Postal Circle with India Post. We are excited to have you onboard! Below are your account credentials:
+        </p>
+        <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px; font-weight: bold; color: #686800;">Unique ID:</td>
+            <td style="padding: 10px; color: #333;">${unique_id}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; font-weight: bold; color: #686800;">Password:</td>
+            <td style="padding: 10px; color: #333;">${plainPassword}</td>
+          </tr>
+        </table>
+        <p style="font-size: 16px; margin-top: 20px; color: #333;">
+          To ensure the security of your account, we strongly recommend logging in and changing your password immediately.
+        </p>
+        <p style="font-size: 16px; color: #333;">
+          You can now manage your Postal Circle's operations efficiently through our platform. If you have any questions or need help, our support team is here to assist you.
+        </p>
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">
+          Best Regards,<br>India Post - Postal Circle Team
+        </p>
+      </div>
+      <div style="background-color: #f1f1f1; color: #666; padding: 10px; text-align: center; font-size: 12px;">
+        © 2024 India Post. All rights reserved.
+      </div>
+      <div style="background-color: #fff; color: #666; padding: 10px; text-align: center; font-size: 12px; border-top: 1px solid #ddd;">
+        <strong>Note:</strong> Please remember to change your password after logging in for the first time to maintain account security.
+      </div>
+    </div>`,
     };
 
     await transporter.sendMail(mailOptions);

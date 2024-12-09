@@ -83,7 +83,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 3600000 // 1 hour
+      maxAge: 86400000 // 1 hour
     });
 
     res.status(200).json({ 
