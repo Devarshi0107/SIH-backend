@@ -111,7 +111,7 @@ const addComment = async (req, res) => {
 };
 // Fetch comments for a specific post
 const getCommentsForPost = async (req, res) => {
-    console.log("getCommentsForPost API called"); // Debugging log
+    // console.log("getCommentsForPost API called"); // Debugging log
     try {
         const { postId } = req.params; // Get postId from URL parameters
 
