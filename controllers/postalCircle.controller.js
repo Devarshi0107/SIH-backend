@@ -1,9 +1,12 @@
 const crypto = require('crypto'); // Add this line to import the crypto module
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose')
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const PostalCircle = require('../models/PostalCircle.model');
+const PhilatelicItem = require('../models/PhilatelicItem.model');
+const PDA = require('../models/PDA.model');
 const Order = require('../models/Order.model');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -26,11 +29,61 @@ exports.getTotalOrder = async (req, res) => {
 };
 
 exports.getTotalPhilatelicItems = async(req,res) =>{
+  try {
+    const postalCircleId = req.postCircle._id;
+  
+    // Fetch the count of items matching the postal_circle
+    const itemCount = await PhilatelicItem.countDocuments({postal_circle: postalCircleId});
 
+    res.status(200).json({
+      message: 'Philatelic items count retrieved successfully',
+      count: itemCount,
+    });
+  } catch (error) {
+    console.error('Error in countPhilatelicItems controller:', error);
+    res.status(500).json({ message: 'Server error while counting items', error });
+  }
 }
 
 exports.getTotalPDAholder = async(req,res) =>{ 
+  try {
+    // Get the Postal Circle ID from the authenticated request
+    const postalCircleId = req.postCircle._id;
 
+    // Count PDAs for this specific Postal Circle
+    const pdaCount = await PDA.countDocuments({ 
+      postal_circle: postalCircleId 
+    });
+
+    // Optional: Count PDAs by different statuses it use in future
+    const pdaStatusCount = await PDA.aggregate([
+      { 
+        $match: { 
+          postal_circle: new mongoose.Types.ObjectId(postalCircleId) 
+        } 
+      },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      totalPDACount: pdaCount,
+      pdaStatusBreakdown: pdaStatusCount,
+      postalCircleId: postalCircleId
+    });
+  } catch (error) {
+    console.error('Error fetching PDA count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve PDA count',
+      error: error.message
+    });
+  }
 }
 
 exports.getPostalCircles = async (req, res) => {

@@ -16,7 +16,7 @@
 const express = require("express");
 const { reactToPost } = require("../controllers/Community-reaction.controller");
 
-console.log("Imported reactToPost:", reactToPost); // Add this line
+// console.log("Imported reactToPost:", reactToPost); // Add this line
 
 const authenticateUser = require("../middlewares/authenticateuser");
 

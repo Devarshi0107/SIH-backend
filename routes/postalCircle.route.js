@@ -18,9 +18,11 @@ const authenticatePostalCircle = require('../middlewares/authenticatePostalCircl
 
 
 router.get('/',getPostalCircles); // for display in pda
+//dashboard
 router.get('/totalOrder',authenticatePostalCircle,getTotalOrder);
 router.get('/totalItems',authenticatePostalCircle,getTotalPhilatelicItems);
 router.get('/totalPDAholder',authenticatePostalCircle,getTotalPDAholder);
+
 router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
