@@ -2,7 +2,34 @@ const PostalCircle = require("../models/PostalCircle.model")
 const User = require("../models/User.model");
 const PDA = require("../models/PDA.model");
 const News = require('../models/News.model');
+const Subscriber = require('../models/Subscriber.model');
 const Event = require('../models/Event.model');
+const nodemailer = require('nodemailer');
+
+// Configure transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Use your email service
+  auth: {
+    user: process.env.EMAIL_USER, // Your email
+    pass: process.env.EMAIL_PASSWORD  // Your password or app-specific password
+  }
+});
+
+// Send email utility
+const sendEmail = async (to, subject, text) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text
+    });
+    console.log(`Email sent to ${to}`);
+  } catch (error) {
+    console.error(`Error sending email to ${to}:`, error.message);
+  }
+};
+
 
 exports.getAllPostCircleDetail = async (req, res) => {
   try {
@@ -80,62 +107,89 @@ exports.getTotalIncomeForCurrentMonth = async (req, res) => {
     });
   }
 };
-
-// Approve a news item
+// Approve News with Notifications
 exports.approveNews = async (req, res) => {
   try {
-    // Update both `isApproved` and `status` fields
     const news = await News.findByIdAndUpdate(
       req.params.id,
-      { 
-        isApproved: true,
-        status: 'accept' // Set the status to 'accept' when approved
-      },
-      { new: true } // Return the updated document
+      { isApproved: true, status: 'accept' },
+      { new: true }
     );
 
     if (!news) return res.status(404).json({ message: 'News not found' });
+
+    // Fetch creator and mediator emails
+    const creator =  await PostalCircle.findById(news.postal_circle);
+    const mediators = await User.find({ role: 'mediator' });
+
+    // Send emails
+    if (creator) await sendEmail(creator.email, 'News Approved', `Your news "${news.title}" has been approved.`);
+    for (const mediator of mediators) {
+      await sendEmail(mediator.email, 'News Approved', `The news "${news.title}" has been approved.`);
+    }
+
+    // Notify subscribers
+    const subscribers = await Subscriber.find({});
+    for (const subscriber of subscribers) {
+      await sendEmail(subscriber.email, 'New News Published', `A new news article "${news.title}" has been published.`);
+    }
 
     res.status(200).json({ message: 'News approved successfully', news });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
 
-}  
-// Approve an event
+// Approve Event with Notifications
 exports.approveEvents = async (req, res) => {
   try {
-    // Update both `isApproved` and `status` fields
     const event = await Event.findByIdAndUpdate(
       req.params.id,
-      { 
-        isApproved: true,
-        status: 'accept' // Set the status to 'accept' when approved
-      },
-      { new: true } // Return the updated document
+      { isApproved: true, status: 'accept' },
+      { new: true }
     );
 
     if (!event) return res.status(404).json({ message: 'Event not found' });
+
+       const creator =  await PostalCircle.findById(event.postal_circle);
+    const mediators = await User.find({ role: 'mediator' });
+
+    // Send emails
+    if (creator) await sendEmail(creator.email, 'Event Approved', `Your event "${event.title}" has been approved.`);
+    for (const mediator of mediators) {
+      await sendEmail(mediator.email, 'Event Approved', `The event "${event.title}" has been approved.`);
+    }
+
+    // Notify subscribers
+    const subscribers = await Subscriber.find({});
+    for (const subscriber of subscribers) {
+      await sendEmail(subscriber.email, 'New Event Published', `A new event "${event.title}" has been published.`);
+    }
 
     res.status(200).json({ message: 'Event approved successfully', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
+// Reject News with Notifications
 exports.rejectNews = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    // Find the news item by ID and update its status to 'rejected'
     const news = await News.findByIdAndUpdate(
-      id,
+      req.params.id,
       { status: 'reject' },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
-    if (!news) {
-      return res.status(404).json({ message: 'News item not found' });
+    if (!news) return res.status(404).json({ message: 'News not found' });
+
+    const creator =  await PostalCircle.findById(news.postal_circle);
+    const mediators = await User.find({ role: 'mediator' });
+
+    // Send emails
+    if (creator) await sendEmail(creator.email, 'News Rejected', `Your news "${news.title}" has been rejected.`);
+    for (const mediator of mediators) {
+      await sendEmail(mediator.email, 'News Rejected', `The news "${news.title}" has been rejected.`);
     }
 
     res.status(200).json({ message: 'News rejected successfully', news });
@@ -144,19 +198,23 @@ exports.rejectNews = async (req, res) => {
   }
 };
 
+// Reject Event with Notifications
 exports.rejectEvents = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    // Find the event by ID and update its status to 'rejected'
     const event = await Event.findByIdAndUpdate(
-      id,
+      req.params.id,
       { status: 'reject' },
-      { new: true } // Return the updated document
+      { new: true }
     );
-    console.log(event); 
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    const creator =  await PostalCircle.findById(event.postal_circle);
+    const mediators = await User.find({ role: 'mediator' });
+
+    // Send emails
+    if (creator) await sendEmail(creator.email, 'Event Rejected', `Your event "${event.title}" has been rejected.`);
+    for (const mediator of mediators) {
+      await sendEmail(mediator.email, 'Event Rejected', `The event "${event.title}" has been rejected.`);
     }
 
     res.status(200).json({ message: 'Event rejected successfully', event });
@@ -164,5 +222,3 @@ exports.rejectEvents = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
