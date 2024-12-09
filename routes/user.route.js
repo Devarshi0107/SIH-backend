@@ -1,5 +1,7 @@
 const express = require("express");
 const multer = require("multer"); // Multer import
+const { updateBadges, addStampToGallery } = require('../controllers/user.controller');  // Correctly importing the controller
+
 const {
   addToCart,
   updateCartItemQuantity,
@@ -59,5 +61,10 @@ router.put(
   upload.single("profileImage"),
   updateUserProfile
 );
+
+router.post('/update-badges', authMiddleware, updateBadges);
+
+// Route to add a stamp to the user's gallery
+router.post('/add-stamp', authMiddleware, addStampToGallery);
 
 module.exports = router;

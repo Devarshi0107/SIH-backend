@@ -380,3 +380,67 @@ exports.orderHistory = async (req, res) => {
     });
   }
 };
+
+// Update Badges (Manual Trigger)
+exports.updateBadges = async (req, res) => {
+  try {
+    // Find the user based on their authenticated ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Example logic for badge updates
+    const updatedBadges = [];
+    const milestone = 10;  // Example: User achieves a milestone after 10 actions
+
+    if (user.actionsCount >= milestone && !user.badges.includes('Milestone Badge')) {
+      updatedBadges.push('Milestone Badge');
+    }
+
+    // Add badges if criteria are met
+    if (updatedBadges.length > 0) {
+      user.badges = [...user.badges, ...updatedBadges]; // Update the user's badges
+    }
+
+    await user.save(); // Save user document with updated badges
+
+    res.json({
+      message: 'Badges updated successfully',
+      badges: user.badges,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Example: Add Stamp to Gallery
+exports.addStampToGallery = async (req, res) => {
+  try {
+    // Find the user based on their authenticated ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Increment the user's stamp gallery count
+    user.stampGalleryCount += 1;
+
+    // Example logic: Update badge if user reaches a certain stamp count
+    if (user.stampGalleryCount === 5 && !user.badges.includes('Stamp Collector Badge')) {
+      user.badges.push('Stamp Collector Badge');
+    }
+
+    await user.save(); // Save user document with updated badge (if applicable)
+
+    res.json({
+      message: 'Stamp added successfully',
+      badges: user.badges,  // Return updated badges
+      stampGalleryCount: user.stampGalleryCount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
