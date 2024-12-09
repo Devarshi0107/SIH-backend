@@ -4,18 +4,34 @@ const dotenv = require('dotenv');
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const PostalCircle = require('../models/PostalCircle.model');
+const Order = require('../models/Order.model');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
-// exports.getPostalCircles = async (req, res) => {
-//   try {
-//     const postalCircles = await PostalCircle.find();
-//     res.status(200).json(postalCircles);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+exports.getTotalOrder = async (req, res) => {
+  try {
+    const postalCircleId = req.postCircle._id;
 
+    // Find the count of orders for the current postal circle
+    const orderCount = await Order.countDocuments({ postalCircle: postalCircleId });
+
+    res.status(200).json({
+      message: `Order count for PostalCircle ${postalCircleId}`,
+      orderCount
+    });
+  } catch (error) {
+    console.error('Error in getOrderCountsByPostalCircle:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getTotalPhilatelicItems = async(req,res) =>{
+
+}
+
+exports.getTotalPDAholder = async(req,res) =>{ 
+
+}
 
 exports.getPostalCircles = async (req, res) => {
   try {
