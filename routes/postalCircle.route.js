@@ -8,6 +8,7 @@ const {
     getTotalAncillaryItems,
     getPDAholderDetails,
     getPostalCircles, 
+    addBankDetails,
     createPostalCircle, 
     loginPostalCircle, 
     changePostalCirclePassword ,
@@ -32,6 +33,8 @@ router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
 router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword);
+
+router.put('/addBankdetails',authenticatePostalCircle,addBankDetails);
 
 // // Count on Dashborad of Postal Circle 
 

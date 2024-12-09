@@ -181,20 +181,71 @@ exports.getPostalCircles = async (req, res) => {
   }
 };
 
+exports.addBankDetails = async(req,res)=>{
+  try {
+    // Extract the postal ID from the middleware (assumed to be verified)
+    const postalId = req.postCircle._id;
+    console.log("in ",postalId);
+    // Extract bank details from the request body
+    const { account_number, ifsc_code, bank_name, branch_name } = req.body;
+    console.log(req.body); 
+    // Validate the provided bank details
+    if (!account_number || !ifsc_code || !bank_name || !branch_name) {
+      return res.status(400).json({
+        success: false,
+        message: "All bank details (account_number, ifsc_code, bank_name, branch_name) are required.",
+      });
+    }
 
+    // Find and update the PostalCircle entry with the new bank details
+    const updatedPostalCircle = await PostalCircle.findOneAndUpdate(
+      { _id: postalId }, // Find by postal ID
+      {
+        $set: {
+          bank_details: {
+            account_number,
+            ifsc_code,
+            bank_name,
+            branch_name,
+          },
+        },
+      },
+      { new: true } // Return the updated document
+    );
 
+    // If no document is found for the postal ID, return an error
+    if (!updatedPostalCircle) {
+      return res.status(404).json({
+        success: false,
+        message: "No PostalCircle found for the provided postal_id.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Bank details added/updated successfully.",
+      data: updatedPostalCircle.bank_details,
+    });
+  } catch (error) {
+    console.error("Error updating bank details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update bank details.",
+      error: error.message,
+    });
+  }
+}
+ 
 // Helper function to generate a unique ID (prefix 'CP' followed by 6 random hex characters)
 function generateUniqueId() {
   const uuid = 'PC' + crypto.randomBytes(3).toString("hex").toUpperCase(); // 3 bytes -> 6 hex characters
   // console.log("Generated Unique ID:", uuid);
   return uuid;
 }
-
 // Helper function to generate a password (8 characters)
 function generatePassword() {
   return crypto.randomBytes(6).toString("base64").slice(0, 8);
 }
-
 // Set up Nodemailer transport
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -293,8 +344,6 @@ exports.createPostalCircle = async (req, res) => {
     res.status(500).json({ message: "Error creating Postal Circle" });
   }
 };
-
-
 exports.loginPostalCircle = async (req, res) => {
   const { unique_id, password } = req.body;
   try {
@@ -319,7 +368,7 @@ exports.loginPostalCircle = async (req, res) => {
     );
     const message = postalCircle.isDefaultPassword
       ? "Login successful. Please change your password as this is the default password."
-      : "Login successful";
+      : `Login successful ${postalCircle.name}`;
 
     // Set the token as an HTTP-only cookie
     res.cookie("token", token, {
@@ -334,7 +383,6 @@ exports.loginPostalCircle = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 // controllers/postalCircle.controller.js
 exports.changePostalCirclePassword = async (req, res) => {
   // console.log("I am postCircle")
