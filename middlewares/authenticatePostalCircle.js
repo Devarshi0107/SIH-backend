@@ -23,9 +23,7 @@ module.exports = async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
-    // req.postalCircleId = decoded.id; // Extract postal circle ID from the token
     
-    console.log('postalid',decoded.id)
     // Check if the user is a valid PostalCircle
     const postalCircle = await PostalCircle.findById(decoded.id);
 

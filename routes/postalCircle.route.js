@@ -2,7 +2,13 @@
 
 const express = require('express');
 const { 
+    getTotalOrder,
+    getTotalPhilatelicItems,
+    getTotalPDAholder,
+    getTotalAncillaryItems,
+    getPDAholderDetails,
     getPostalCircles, 
+    addBankDetails,
     createPostalCircle, 
     loginPostalCircle, 
     changePostalCirclePassword ,
@@ -15,10 +21,22 @@ const authenticatePostalCircle = require('../middlewares/authenticatePostalCircl
 
 
 router.get('/',getPostalCircles); // for display in pda
+//dashboard
+router.get('/totalOrder',authenticatePostalCircle,getTotalOrder);
+router.get('/totalItems',authenticatePostalCircle,getTotalPhilatelicItems);
+router.get('/totalPDAholder',authenticatePostalCircle,getTotalPDAholder);
+router.get('/totalAncillaryItems',authenticatePostalCircle,getTotalAncillaryItems);
+
+router.get('/pdaholderDetails',authenticatePostalCircle,getPDAholderDetails);
+
 router.post('/',isAdmin, createPostalCircle); // pela authenticateisuser hatu
 router.post('/login', loginPostalCircle);  
 router.post('/logout', logout);  // remove query
 router.post('/change-password', authenticatePostalCircle, changePostalCirclePassword);
+
+router.put('/addBankdetails',authenticatePostalCircle,addBankDetails);
+
+// // Count on Dashborad of Postal Circle 
 
 
 module.exports = router;

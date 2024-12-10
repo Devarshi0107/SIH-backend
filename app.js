@@ -45,11 +45,11 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', createCircleRoutesByAdmin);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/subscribers', subscriberRoutes);
-app.use((req, res) => {
-  res.status(404).json({ message: 'Resource not found' });
-});
 app.use("/api/posts", postRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use((req, res) => {
+  res.status(404).json({ message: 'Resource not found' });
+});
 module.exports = app;
