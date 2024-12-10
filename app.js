@@ -50,8 +50,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use('/api/gallery', galleryRoutes);
-app.use('api/pdaOrder',pdaOrderRoutes);
-app.use((req, res) => {
-  res.status(404).json({ message: 'Resource not found' });
-});
+app.use('/api/pdaOrders',pdaOrderRoutes);
+// app.use((req, res) => {
+//   res.status(404).json({ message: 'Resource not found' });
+// });
 module.exports = app;

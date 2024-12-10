@@ -7,6 +7,6 @@ const router = express.Router();
 router.get('/postal-circle/:postalCircleId/filter-users', authenticatePostalCircle, pdaOrderController.filterPDAUsers);
 
 // Route to process PDA orders for filtered users
-router.post('/process-orders', authenticatePostalCircle, pdaOrderController.processPdaOrders);
+// router.post('/process-orders', authenticatePostalCircle, pdaOrderController.processPdaOrders);
 
 module.exports = router;

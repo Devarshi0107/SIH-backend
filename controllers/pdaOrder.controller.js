@@ -1,8 +1,8 @@
 const PDAOrder = require('../models/PdaOrder.model');
 const PDA = require('../models/PDA.model');
 const User = require('../models/User.model');
-const PhilatelicItem = require("../models/PhilatelicItem");
-const PostalCircle = require("../models/PostalCircle");
+const PhilatelicItem = require("../models/PhilatelicItem.model");
+const PostalCircle = require("../models/PostalCircle.model");
 // const sendEmail = require('../utils/sendEmail'); // Utility function to send emails
 
 // Fetch users based on postalCircle and selected categories
@@ -34,6 +34,5 @@ exports.filterPDAUsers = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 
