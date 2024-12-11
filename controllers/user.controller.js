@@ -246,9 +246,9 @@ exports.removeProductFromWishlist = async (req, res) => {
 // Update user profile controller
 exports.updateUserProfile = async (req, res) => {
   try {
-    const userId = req.body.id; // User ID from auth middleware
+    const userId = req.user._id; // User ID from auth middleware
     const updates = req.body; // Data to update
-    console.log(updates);
+
 
     // Allowed fields to update
     const allowedUpdates = ["name", "phone", "address"];

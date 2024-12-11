@@ -59,14 +59,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'mediator'], 
+    enum: ['user', 'admin', 'mediator','PDA'], 
     default: 'user'
   },
   cart: [cartItemSchema],
-  coins: { type: Number, default: 0 },
   // wallet_balance: { type: Number, default: 0 },
   isSubscribed: { type: Boolean, default: false },
-  isPDA :{ type: Boolean, default: false }, // true means user is PDA  user  otherwise normal user (new added 11/Dec)
+  isPDA :{ type: Boolean , default : false}, // true means user is PDA  user  otherwise normal user (new added 11/Dec)
   profileImage: { type: String },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
