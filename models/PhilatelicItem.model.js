@@ -55,13 +55,8 @@ const philatelicItemSchema = new mongoose.Schema({
   image: {type : String,required :true},
   visibility: {
     type: String,
-<<<<<<< HEAD
-=======
+
     enum: ['all', 'normal_users', 'pda_users'],
-<<<<<<< HEAD
-    required : true
-  },
-=======
   },
    specifications: {
     rarity: {
@@ -69,10 +64,8 @@ const philatelicItemSchema = new mongoose.Schema({
       enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
       required: true,
     }},
->>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)
   notify: {
     type: String,
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
     enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
@@ -81,14 +74,11 @@ const philatelicItemSchema = new mongoose.Schema({
     // dimensions: {type :String,required :true},
     rarity: { type: Boolean, default: false }
   },
-<<<<<<< HEAD
   notify: {
     type: String,
     enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
-=======
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
   status: {
     type: String,
     enum: ['active', 'inactive', 'out_of_stock'],
