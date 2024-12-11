@@ -4,40 +4,47 @@ const Pda = require("../models/PDA.model");
 const stripe = require("../config/stripe.config");
 
 exports.createPaymentIntent = async (req, res) => {
-    const { amount, email, userId } = req.body;
-  
-    try {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "inr",
-              product_data: { name: "Wallet Balance Top-Up" },
-              unit_amount: amount * 100, // Stripe expects amount in smallest currency unit
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url:
-          "http://localhost:5173/checkout-success?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url: "http://localhost:5173/",
-        customer_email: email,
-        metadata: {
-          userId: userId,
-          amount: amount,
-        },
-      });
-  
-      console.log("Session created successfully:", session);
-  
-      res.send({ url: session.url }); 
-    } catch (error) {
-      console.error("Error creating session:", error);
-      res.status(500).json({ error: error.message });
+  const { amount, email, userId } = req.body;
+
+  try {
+    // Validate minimum amount (₹42 in paise)
+    const MIN_AMOUNT_INR = 42; // Minimum INR amount
+    if (amount < MIN_AMOUNT_INR) {
+      return res.status(400).json({ error: `Minimum amount is ₹${MIN_AMOUNT_INR}.` });
     }
-  };
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            product_data: { name: "Wallet Balance Top-Up" },
+            unit_amount: amount * 100, // Convert amount to paise
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url:
+        "http://localhost:5173/checkout-success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "http://localhost:5173/",
+      customer_email: email,
+      metadata: {
+        userId: userId,
+        amount: amount,
+      },
+    });
+
+    console.log("Session created successfully:", session);
+
+    res.send({ url: session.url });
+  } catch (error) {
+    console.error("Error creating session:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
   
 
 exports.verifyPayment = async (req, res) => {
