@@ -10,11 +10,7 @@ const Order = require('../models/Order.model');
 
 // Configure transporter
 const transporter = nodemailer.createTransport({
-<<<<<<< HEAD
-  host: process.env.EMAIL_HOST, // Use your email service
-=======
   host: process.env.EMAIL_HOST,
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
@@ -292,10 +288,7 @@ exports.createPhilatelicItem = async (req, res) => {
       stock, 
       specifications, 
       status,
-<<<<<<< HEAD
-=======
       year,
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       visibility,
       notify
     } = req.body;
@@ -318,15 +311,8 @@ exports.createPhilatelicItem = async (req, res) => {
       specifications,
       image: imageUrl,
       visibility,
-<<<<<<< HEAD
       notify,
-      status: status || 'active'
-=======
-      notify
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
-    });
-
-    // Save to database
+      status: status || 'active'})
     await philatelicItem.save();
     console.log(notify);
     // Send notifications based on the 'notify' field
@@ -365,24 +351,10 @@ exports.createPhilatelicItem = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
 // Send notifications to PDA users with matching preferences
 async function sendPDANotifications(item) {
   try {
     // Find PDA users whose preferences match the new item
-<<<<<<< HEAD
-    // Find PDA users with matching item types AND email notifications enabled
-    const pdaUsers = await PDA.find({
-      'preferences.item_types': { $in: [item.subitem] },
-      'preferences.notification_preferences.email': true
-    }).populate('user');
-
-    // Send personalized emails to matching PDA users
-    const notificationPromises = pdaUsers.map(async (pda) => {
-=======
     console.log('inside sendPDanotifications',item.category);
     const pdaUsers = await PDA.find({
       'preferences.item_types': { $in: [item.category] },
@@ -392,7 +364,6 @@ async function sendPDANotifications(item) {
     console.log("pda match",pdaUsers);
     // Send personalized emails to matching PDA users
     for (const pda of pdaUsers) {
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       const emailOptions = {
         from: process.env.EMAIL_USER,
         to: pda.user.email,
@@ -469,32 +440,6 @@ async function sendPDANotifications(item) {
   </div>
 </div>
 `
-<<<<<<< HEAD
-    };
-
-      await transporter.sendMail(emailOptions);
-      return pda.user;
-    });
-
-    return Promise.all(notificationPromises);
-  } catch (error) {
-    console.error('Error sending PDA notifications:', error);
-    return [];
-  }
-}
-
-// Send notifications to normal users (excluding PDA users)
-async function sendNormalUserNotifications(item) {
-  try {
-    // Find normal users (those without PDA accounts)
-    const users = await User.find({ 
-      isPDA: false, // Only users without PDA accounts
-      emailNotifications: true 
-    });
-
-    // Send emails to normal users
-    const notificationPromises = users.map(async (user) => {
-=======
       };
       console.log("Email is sending..")
       await transporter.sendMail(emailOptions);
@@ -517,7 +462,6 @@ async function sendNormalUserNotifications(item) {
     // console.log('found all users', users);
     // Send emails to normal users
     for (const user of users) {
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       const emailOptions = {
         from: process.env.EMAIL_USER,
         to: user.email,
@@ -539,11 +483,7 @@ async function sendNormalUserNotifications(item) {
       <h3 style="color: #686800;">${item.name}</h3>
       <img src="${item.image}" alt="${item.name}" style="max-width: 100%; height: auto; margin: 10px 0;">
       <p style="font-size: 14px; color: #333;"><strong>Category:</strong> ${item.category}</p>
-<<<<<<< HEAD
-      <p style="font-size: 14px; color: #333;"><strong>Price:</strong> $${item.price}</p>
-=======
       <p style="font-size: 14px; color: #333;"><strong>Price:</strong> ${item.price}</p>
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
     </div>
     <div style="text-align: center; margin-top: 20px;">
       <a href="${process.env.FRONTEND_URL}/items/${item._id}" style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">View Item</a>
@@ -552,22 +492,6 @@ async function sendNormalUserNotifications(item) {
   <div style="background-color: #f1f1f1; color: #666; padding: 10px; text-align: center; font-size: 12px;">
     © 2024 India Post. All rights reserved.
   </div>
-<<<<<<< HEAD
-</div>`
-      };
-
-      await transporter.sendMail(emailOptions);
-      return user;
-    });
-
-    return Promise.all(notificationPromises);
-  } catch (error) {
-    console.error('Error sending normal user notifications:', error);
-    return [];
-  }
-}
-
-=======
 </div>
 
         `
@@ -579,8 +503,6 @@ async function sendNormalUserNotifications(item) {
     console.error('Error sending normal user notifications:', error);
   }
 }
-
-=======
 exports.getAllOrders = async (req, res) => {
   try {
     // Find all orders, populate item details, and sort by created date
@@ -617,5 +539,3 @@ exports.getAllOrders = async (req, res) => {
     });
   }
 };
->>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)
->>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
