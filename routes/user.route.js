@@ -42,8 +42,6 @@ router.post("/cart/add", authMiddleware, addToCart);
 router.put("/cart/editItem/:cartItemId", authMiddleware, updateCartItemQuantity);
 router.put("/cart/remove/:cartItemId", authMiddleware, removeCartItem);
 
-
-
 // http://localhost:5173/items/my-cart/checkout
 router.put("/updateDeliveryaddress",authMiddleware,updateDeliveryAddress)
 router.get("/wishlist/:id", authMiddleware, getWishlist);

@@ -188,7 +188,6 @@ exports.addBankDetails = async(req,res)=>{
     console.log("in ",postalId);
     // Extract bank details from the request body
     const { account_number, ifsc_code, bank_name, branch_name } = req.body;
-    console.log(req.body); 
     // Validate the provided bank details
     if (!account_number || !ifsc_code || !bank_name || !branch_name) {
       return res.status(400).json({

@@ -21,7 +21,7 @@ const cookieParser = require('cookie-parser');
 const postRoutes = require("./routes/community-post.route");
 const reactionRoutes = require("./routes/community-reaction.route");
 const commentRoutes = require("./routes/Community-comments.route");
-const galleryRoutes = require('./routes/gallery.routes');
+const galleryRoutes = require('./routes/gallery.route');
 const pdaOrderRoutes = require("./routes/PdaOrder.route")
 
 dotenv.config();

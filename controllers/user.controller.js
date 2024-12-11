@@ -312,11 +312,14 @@ exports.updateUserProfile = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     // Fetch the user by ID from the database
-    const user = await User.findById(req.params.id);
+    let user = await User.findById(req.params.id);
 
     // If user is not found, return a 404 response
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      user = await PostalCircleModel.findById(req.params.id);
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
     }
 
     // Return the user data
@@ -325,10 +328,9 @@ exports.getUserById = async (req, res) => {
     console.error("Error fetching user by ID:", error);
 
     // Return a 500 response for any server errors
-    return res.status(500).json({ message: "Internal server error" });
-  }
+    return res.status(500).json({ message: "Internal server error" });
+}
 };
-
 exports.getUserDetails = async (req, res) => {
   const { userId } = req.params; // Extract userId from the request parameters
 
