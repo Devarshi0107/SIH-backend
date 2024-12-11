@@ -64,6 +64,11 @@ const philatelicItemSchema = new mongoose.Schema({
     // dimensions: String,
     rarity: { type: Boolean, default: false }
   },
+  notify: {
+    type: String,
+    enum: ['all', 'normal_users', 'pda_users'],
+    required : true
+  },
   status: {
     type: String,
     enum: ['active', 'inactive', 'out_of_stock'],
