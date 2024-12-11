@@ -48,7 +48,7 @@ exports.getCartItems = async (req, res) => {
     }
 
     // Fetch the user's cart with populated PhilatelicItem details
-    const user = await User.findById(userId).populate('cart.PhilatelicItem', 'name price');
+    const user = await User.findById(userId).populate('cart.PhilatelicItem', 'name price image');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
