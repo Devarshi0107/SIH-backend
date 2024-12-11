@@ -25,7 +25,7 @@ const postalCircleSchema = new mongoose.Schema({
     minimum_order_amount: Number,
     coins_to_give: Number
   }],
-  total_revenue: { type: Number, default: 0 },
+  total_revenue: { type: Number, default: 0 }, // like wallet
   active: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now }
 }, { timestamps: true });

@@ -43,12 +43,13 @@ const cartItemSchema = new mongoose.Schema({
   quantity: { type: Number, min: 1 }
 });
 
+
 // User Schema
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   name: { type: String, required: true },
-  phone: String,
+  phone: {type:String,required: true},
   address: {
     street: String,
     city: String,
@@ -58,13 +59,14 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'mediator'],
+    enum: ['user', 'admin', 'mediator'], 
     default: 'user'
   },
   cart: [cartItemSchema],
   coins: { type: Number, default: 0 },
-  wallet_balance: { type: Number, default: 0 },
+  // wallet_balance: { type: Number, default: 0 },
   isSubscribed: { type: Boolean, default: false },
+  isPDA :{ type: Boolean, default: false }, // true means user is PDA  user  otherwise normal user (new added 11/Dec)
   profileImage: { type: String },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

@@ -1,19 +1,22 @@
 const mongoose = require('mongoose');
 
 const PDAOrderSchema = new mongoose.Schema({
-  postalCircle: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PostalCircle',
-    required: true,
-  },
+  // postalCircle: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'PostalCircle',
+  //   required: true,
+  // },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
   selectedCategories: {
-    type: Map, // Key: category, Value: array of selected subcategories
-    of: [String],
+    type: Map, // Key: category
+    of: {
+      subcategories: [String], // Array of selected subcategories
+      quantity: { type: Number, min: 1 }, // Quantity for the category
+    },
     required: true,
   },
   totalPrice: {
@@ -22,8 +25,8 @@ const PDAOrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['processed', 'failed'],
-    default: 'processed',
+    enum: ['accepted', 'pending','rejected'],
+    default: 'pending',
   },
   reason: {
     type: String,

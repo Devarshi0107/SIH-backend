@@ -5,6 +5,7 @@ const News = require('../models/News.model');
 const Subscriber = require('../models/Subscriber.model');
 const Event = require('../models/Event.model');
 const nodemailer = require('nodemailer');
+const PhilatelicItem = require('../models/PhilatelicItem.model');
 
 // Configure transporter
 const transporter = nodemailer.createTransport({
@@ -219,6 +220,41 @@ exports.rejectEvents = async (req, res) => {
 
     res.status(200).json({ message: 'Event rejected successfully', event });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createPhilatelicItem = async (req, res) => {
+  try {
+    const { name, description, category, subitem, price, stock, specifications, status } = req.body;
+
+    // Check if a file was uploaded
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `${req.protocol}://${req.get('host')}/uploads/philatelicItemImg/${encodeURIComponent(req.file.filename)}`;
+    }
+
+    // Create new philatelic item
+    const philatelicItem = new PhilatelicItem({
+      name,
+      description,
+      category,
+      subitem,
+      price,
+      stock,
+      specifications,
+      image: imageUrl, // Store the uploaded image URL
+    });
+
+    // Save to database
+    await philatelicItem.save();
+
+    res.status(201).json({
+      message: 'Philatelic item created successfully',
+      philatelicItem,
+    });
+  } catch (error) {
+    console.error('Error creating philatelic item:', error);
     res.status(500).json({ error: error.message });
   }
 };

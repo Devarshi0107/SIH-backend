@@ -35,4 +35,87 @@ exports.filterPDAUsers = async (req, res) => {
   }
 };
 
+// exports.processOrders = async (req, res) => {
+//   const { philatelicItems, users } = req.body;
 
+//   if (!philatelicItems || !users || !Array.isArray(users)) {
+//     return res.status(400).json({ message: "Invalid request body." });
+//   }
+
+//   const successfulOrders = [];
+//   const failedUsers = [];
+
+//   try {
+//     // Fetch all PhilatelicItems in one query to reduce DB calls
+//     const itemsMap = new Map();
+//     const items = await PhilatelicItem.find({ _id: { $in: philatelicItems } });
+//     items.forEach(item => itemsMap.set(item._id.toString(), item));
+
+//     for (const userObj of users) {
+//       const { userId, philatelicInventory } = userObj;
+//       const user = await User.findById(userId);
+
+//       if (!user) {
+//         failedUsers.push({ userId, reason: "User not found." });
+//         continue;
+//       }
+
+//       let totalPrice = 0;
+//       const itemUpdates = [];
+
+//       // Calculate total price and prepare inventory updates
+//       for (const [subcategory, quantity] of Object.entries(philatelicInventory)) {
+//         const philatelicItem = items.find(item => item.subitem === subcategory);
+
+//         if (!philatelicItem) {
+//           failedUsers.push({ userId, reason: `Item not found for subcategory: ${subcategory}.` });
+//           continue;
+//         }
+
+//         if (philatelicItem.stock < quantity) {
+//           failedUsers.push({ userId, reason: `Insufficient stock for ${subcategory}.` });
+//           continue;
+//         }
+
+//         totalPrice += philatelicItem.price * quantity;
+//         itemUpdates.push({ item: philatelicItem, quantity });
+//       }
+
+//       // Check if the user has enough balance
+//       if (user.wallet_balance < totalPrice) {
+//         failedUsers.push({ userId, reason: "Insufficient wallet balance." });
+//         continue;
+//       }
+
+//       // Deduct the amount from the user's wallet
+//       user.wallet_balance -= totalPrice;
+
+//       // Deduct stock from the PhilatelicItems
+//       itemUpdates.forEach(({ item, quantity }) => {
+//         item.stock -= quantity;
+//       });
+
+//       // Credit the amount to the Postal Circle's wallet
+//       const postalCircle = await PostalCircle.findById(itemUpdates[0]?.item.postal_circle);
+//       if (postalCircle) {
+//         postalCircle.total_revenue += totalPrice;
+//         await postalCircle.save();
+//       }
+
+//       // Save the updated user and PhilatelicItems
+//       await user.save();
+//       await Promise.all(itemUpdates.map(({ item }) => item.save()));
+
+//       successfulOrders.push({ userId, totalPrice });
+//     }
+
+//     res.status(200).json({
+//       message: "Order processing completed.",
+//       successfulOrders,
+//       failedUsers,
+//     });
+//   } catch (error) {
+//     console.error("Error processing orders:", error);
+//     res.status(500).json({ message: "Internal server error." });
+//   }
+// };

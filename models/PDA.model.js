@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const pdaSchema = new mongoose.Schema({
   account_number: { type: String, unique: true },  // Automatically generated
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // From request body
-  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },  // From request body
+  // postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },  // From request body
   balance: { type: Number, default: 0 },  // Optional in request body, default to 0
   preferences: {  // Optional in request body
     item_types: [String], 
@@ -31,8 +31,8 @@ const pdaSchema = new mongoose.Schema({
     SpecialCollectorsStampPack: { type: Number, default: 0 },
     FirstDayCoverPack: { type: Number, default: 0 },
     MiniSheetSouvenirSheet: { type: Number, default: 0 },
-    PostalStationery: { type: Number, default: 0 },
-    OtherItems: { type: String }
+    // PostalStationery: { type: Number, default: 0 },
+    // OtherItems: { type: String }
   },
   lastUpdated: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now }
