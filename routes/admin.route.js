@@ -25,6 +25,8 @@ router.get('/total-users',isAdmin,getTotalUsers);
 router.get('/total-pda-accounts',isAdmin, getTotalPDAAccounts);
 router.get("/total-income-current-month",isAdmin, getTotalIncomeForCurrentMonth);
 
+//Philatelicitem create by admin
+router.post('/item-create',isAdmin)
 router.put('/approve-news/:id', isAdmin, approveNews);
 router.put('/approve-event/:id', isAdmin, approveEvents);
 router.put('/reject-news/:id', isAdmin, rejectNews);
