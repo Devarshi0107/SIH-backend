@@ -12,8 +12,8 @@ const philatelicItemSchema = new mongoose.Schema({
       'Brochures', 
       'Packs', 
       'Souvenirs', 
-      'PostalStationery', 
-      'OtherItems'
+    //   'PostalStationery', 
+    //   'OtherItems'
     ]
   },
   subitem: {
@@ -26,8 +26,8 @@ const philatelicItemSchema = new mongoose.Schema({
           Brochures: ['InformationBrochureAffixed', 'InformationBrochureBlank'],
           Packs: ['AnnualStampPack', 'ChildrenSpecialAnnualStampPack', 'SpecialCollectorsStampPack'],
           Souvenirs: ['MiniSheet/SouvenirSheet'],
-          PostalStationery: 'number', // PostalStationery expects a number (e.g., quantity, identifier, postal number)
-          OtherItems: 'string' // OtherItems expects a string (e.g., name or description of the item)
+        //   PostalStationery: 'number', // PostalStationery expects a number (e.g., quantity, identifier, postal number)
+        //   OtherItems: 'string' // OtherItems expects a string (e.g., name or description of the item)
         };
 
         // If subitem is not provided, allow it to be empty for some categories
@@ -58,10 +58,14 @@ const philatelicItemSchema = new mongoose.Schema({
     enum: ['all', 'normal_users', 'pda_users'],
     required : true
   },
+  notify: {
+    type: String,
+    enum: ['both', 'normal_users', 'pda_users'],
+    required : true
+  },
   specifications: {
-    year: Number,
-    // condition: String,
-    // dimensions: String,
+    year: {type : Number},
+    // dimensions: {type :String,required :true},
     rarity: { type: Boolean, default: false }
   },
   status: {
