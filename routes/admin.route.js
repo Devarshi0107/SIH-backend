@@ -62,7 +62,7 @@ router.get("/total-income-current-month",isAdmin, getTotalIncomeForCurrentMonth)
 
 router.post('/create-postal-circle', isAdmin, createPostalCircle)
 // router.post('/create-item',isAdmin,createPhilatelicItem)
-router.post('/create-item',isAdmin,upload.single('imageFile'), createPhilatelicItem);
+router.post('/create-item',isAdmin,upload.single('imageFile'), createPhilatgit elicItem);
 
 router.put('/approve-news/:id', isAdmin, approveNews);
 router.put('/approve-event/:id', isAdmin, approveEvents);

@@ -9,7 +9,7 @@ const PhilatelicItem = require('../models/PhilatelicItem.model');
 
 // Configure transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Use your email service
+  host: process.env.EMAIL_HOST, // Use your email service
   auth: {
     user: process.env.EMAIL_USER, // Your email
     pass: process.env.EMAIL_PASSWORD  // Your password or app-specific password
@@ -224,9 +224,55 @@ exports.rejectEvents = async (req, res) => {
   }
 };
 
+// exports.createPhilatelicItem = async (req, res) => {
+//   try {
+//     const { name, description, category, subitem, price, stock, specifications, status } = req.body;
+
+//     // Check if a file was uploaded
+//     let imageUrl = null;
+//     if (req.file) {
+//       imageUrl = `${req.protocol}://${req.get('host')}/uploads/philatelicItemImg/${encodeURIComponent(req.file.filename)}`;
+//     }
+
+//     // Create new philatelic item
+//     const philatelicItem = new PhilatelicItem({
+//       name,
+//       description,
+//       category,
+//       subitem,
+//       price,
+//       stock,
+//       specifications,
+//       image: imageUrl, // Store the uploaded image URL
+//     });
+
+//     // Save to database
+//     await philatelicItem.save();
+
+//     res.status(201).json({
+//       message: 'Philatelic item created successfully',
+//       philatelicItem,
+//     });
+//   } catch (error) {
+//     console.error('Error creating philatelic item:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 exports.createPhilatelicItem = async (req, res) => {
   try {
-    const { name, description, category, subitem, price, stock, specifications, status } = req.body;
+    const { 
+      name, 
+      description, 
+      category, 
+      subitem, 
+      price, 
+      stock, 
+      specifications, 
+      status,
+      visibility,
+      notify
+    } = req.body;
 
     // Check if a file was uploaded
     let imageUrl = null;
@@ -243,18 +289,195 @@ exports.createPhilatelicItem = async (req, res) => {
       price,
       stock,
       specifications,
-      image: imageUrl, // Store the uploaded image URL
+      image: imageUrl,
+      visibility,
+      notify,
+      status: status || 'active'
     });
 
     // Save to database
     await philatelicItem.save();
 
+    // Initialize arrays to track notified users
+    let pdaNotifiedUsers = [];
+    let normalNotifiedUsers = [];
+
+    // Send notifications based on the 'notify' field
+    if (notify === 'both' || notify === 'pda_users') {
+      pdaNotifiedUsers = await sendPDANotifications(philatelicItem);
+    }
+
+    if (notify === 'both' || notify === 'normal_users') {
+      normalNotifiedUsers = await sendNormalUserNotifications(philatelicItem);
+    }
+
     res.status(201).json({
       message: 'Philatelic item created successfully',
       philatelicItem,
+      notifications: {
+        pdaUsers: pdaNotifiedUsers.map(user => user.name),
+        normalUsers: normalNotifiedUsers.map(user => user.name)
+      }
     });
   } catch (error) {
     console.error('Error creating philatelic item:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
+// Send notifications to PDA users with matching preferences
+async function sendPDANotifications(item) {
+  try {
+    // Find PDA users whose preferences match the new item
+    // Find PDA users with matching item types AND email notifications enabled
+    const pdaUsers = await PDA.find({
+      'preferences.item_types': { $in: [item.subitem] },
+      'preferences.notification_preferences.email': true
+    }).populate('user');
+
+    // Send personalized emails to matching PDA users
+    const notificationPromises = pdaUsers.map(async (pda) => {
+      const emailOptions = {
+        from: process.env.EMAIL_USER,
+        to: pda.user.email,
+        subject: 'New Philatelic Item Matching Your Preferences',
+        html: `
+<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+  <div style="background-color: #1a4d2e; text-align: center; padding: 20px;">
+    <h2 style="color: #fff; margin: 0;">Philatelic Treasures</h2>
+  </div>
+  
+  <div style="background-color: #1a4d2e; color: #fff; padding: 20px; text-align: center;">
+    <h3 style="margin: 0;">New Collection Item Alert!</h3>
+    <p style="margin: 10px 0 0 0;">Matching Your Interests</p>
+  </div>
+  
+  <div style="padding: 20px;">
+    <p style="font-size: 16px; color: #333;">Dear ${pda.user.name},</p>
+    
+    <p style="font-size: 16px; color: #333;">
+      We're excited to inform you about a new philatelic item that perfectly matches your collection preferences!
+    </p>
+    
+    <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h3 style="color: #1a4d2e; margin-top: 0;">${item.name}</h3>
+      
+      <div style="text-align: center; margin: 15px 0;">
+        <img src="${item.image}" alt="${item.name}" 
+             style="max-width: 200px; max-height: 200px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      </div>
+      
+      <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e; width: 100px;">Category:</td>
+          <td style="padding: 8px 0; color: #333;">${item.category}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Subitem:</td>
+          <td style="padding: 8px 0; color: #333;">${item.subitem}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Price:</td>
+          <td style="padding: 8px 0; color: #333;">$${item.price}</td>
+        </tr>
+      </table>
+    </div>
+    
+    <p style="font-size: 16px; color: #333;">
+      This item matches your interest in ${item.subitem}. Don't miss out on this opportunity to enhance your collection!
+    </p>
+    
+    <div style="text-align: center; margin: 25px 0;">
+      <a href="${process.env.FRONTEND_URL}/items/${item._id}" 
+         style="background-color: #1a4d2e; color: white; padding: 12px 25px; text-decoration: none; 
+                border-radius: 5px; display: inline-block; font-weight: bold;">
+        View Item Details
+      </a>
+    </div>
+    
+    <p style="margin-top: 20px; font-size: 14px; color: #666;">
+      Best Regards,<br>
+      Your Philatelic Team
+    </p>
+  </div>
+  
+  <div style="background-color: #f1f1f1; color: #666; padding: 15px; text-align: center; font-size: 12px;">
+    © ${new Date().getFullYear()} Philatelic Treasures. All rights reserved.
+  </div>
+  
+  <div style="background-color: #fff; color: #666; padding: 15px; text-align: center; font-size: 12px; border-top: 1px solid #ddd;">
+    <p style="margin: 0;">
+      This email was sent because you opted to receive notifications for items matching your preferences.
+      To update your preferences, please visit your account settings.
+    </p>
+  </div>
+</div>
+`
+    };
+
+      await transporter.sendMail(emailOptions);
+      return pda.user;
+    });
+
+    return Promise.all(notificationPromises);
+  } catch (error) {
+    console.error('Error sending PDA notifications:', error);
+    return [];
+  }
+}
+
+// Send notifications to normal users (excluding PDA users)
+async function sendNormalUserNotifications(item) {
+  try {
+    // Find normal users (those without PDA accounts)
+    const users = await User.find({ 
+      isPDA: false, // Only users without PDA accounts
+      emailNotifications: true 
+    });
+
+    // Send emails to normal users
+    const notificationPromises = users.map(async (user) => {
+      const emailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'New Philatelic Item Added',
+        html: `
+<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+  <div style="background-color: #686800; text-align: center; padding: 20px;">
+    <img src="https://presentations.gov.in/wp-content/uploads/2020/06/India-Post_Preview.png?x81500" alt="India Post Logo" style="width: 100px; height: auto;">
+  </div>
+  <div style="background-color: #686800; color: #fff; padding: 20px; text-align: center;">
+    <h2>New Philatelic Item Available!</h2>
+  </div>
+  <div style="padding: 20px;">
+    <p style="font-size: 16px; color: #333;">Hello ${user.name},</p>
+    <p style="font-size: 16px; color: #333;">
+      A new exciting philatelic item has been added to our collection:
+    </p>
+    <div style="border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px;">
+      <h3 style="color: #686800;">${item.name}</h3>
+      <img src="${item.image}" alt="${item.name}" style="max-width: 100%; height: auto; margin: 10px 0;">
+      <p style="font-size: 14px; color: #333;"><strong>Category:</strong> ${item.category}</p>
+      <p style="font-size: 14px; color: #333;"><strong>Price:</strong> $${item.price}</p>
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+      <a href="${process.env.FRONTEND_URL}/items/${item._id}" style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">View Item</a>
+    </div>
+  </div>
+  <div style="background-color: #f1f1f1; color: #666; padding: 10px; text-align: center; font-size: 12px;">
+    © 2024 India Post. All rights reserved.
+  </div>
+</div>`
+      };
+
+      await transporter.sendMail(emailOptions);
+      return user;
+    });
+
+    return Promise.all(notificationPromises);
+  } catch (error) {
+    console.error('Error sending normal user notifications:', error);
+    return [];
+  }
+}
+

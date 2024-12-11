@@ -55,7 +55,7 @@ const philatelicItemSchema = new mongoose.Schema({
   image: {type : String,required :true},
   visibility: {
     type: String,
-    enum: ['all', 'normal_users', 'pda_users'],
+    enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
   specifications: {
@@ -66,7 +66,7 @@ const philatelicItemSchema = new mongoose.Schema({
   },
   notify: {
     type: String,
-    enum: ['all', 'normal_users', 'pda_users'],
+    enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
   status: {
