@@ -49,15 +49,15 @@ const philatelicItemSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid subitem for the selected category`
     }
   },
-  postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
+  // postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },
   price: { type: Number, required: true },
   stock: { type: Number, required: true },
-  image: {type: String},
+  image: {type : String,required :true},
   specifications: {
     year: Number,
-    condition: String,
-    dimensions: String,
-    rarity: String
+    // condition: String,
+    // dimensions: String,
+    rarity: { type: Boolean, default: false }
   },
   status: {
     type: String,

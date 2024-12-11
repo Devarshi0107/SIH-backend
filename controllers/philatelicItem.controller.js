@@ -180,25 +180,38 @@ exports.getPhilatelicItemsByPostCircle = async (req, res) => {
 
 // const PhilatelicItem = require('../models/PhilatelicItem');
 
-exports.createPhilatelicItem = async (req, res) => {
-  const postal_circle = req.body.postalCircleId; // Ensure it's passed in the request body
-  try {
-    const philatelicItem = new PhilatelicItem({
-      name: req.body.name,
-      description: req.body.description,
-      category: req.body.category,
-      subitem: req.body.subitem,
-      postal_circle,
-      price: req.body.price,
-      stock: req.body.stock,
-      image: req.body.imageLink,
-      specifications: req.body.specifications,
-      status: req.body.status || "active",
-    });
+// exports.createPhilatelicItem = async (req, res) => {
+//   try {
+//     const { name, description, category, subitem, price, stock, specifications, status } = req.body;
 
-    await philatelicItem.save();
-    res.status(201).json(philatelicItem);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     // Check if a file was uploaded
+//     let imageUrl = null;
+//     if (req.file) {
+//       imageUrl = `${req.protocol}://${req.get('host')}/uploads/philatelicItemImg/${encodeURIComponent(req.file.filename)}`;
+//     }
+
+//     // Create new philatelic item
+//     const philatelicItem = new PhilatelicItem({
+//       name,
+//       description,
+//       category,
+//       subitem,
+//       price,
+//       stock,
+//       specifications,
+//       image: imageUrl, // Store the uploaded image URL
+//       status: status || 'active',
+//     });
+
+//     // Save to database
+//     await philatelicItem.save();
+
+//     res.status(201).json({
+//       message: 'Philatelic item created successfully',
+//       philatelicItem,
+//     });
+//   } catch (error) {
+//     console.error('Error creating philatelic item:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
