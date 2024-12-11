@@ -1,13 +1,12 @@
 const express = require("express");
 const multer = require("multer"); // Multer import
-const { updateBadges, addStampToGallery } = require('../controllers/user.controller');  // Correctly importing the controller
+const { getOrderHistory, addStampToGallery } = require('../controllers/user.controller');  // Correctly importing the controller
 
 const {
   addToCart,
   updateCartItemQuantity,
   getCartItems,
   removeCartItem,
-  orderHistory,
   updateDeliveryAddress,
   getWishlist,
   addProductToWishlist,
@@ -17,6 +16,7 @@ const {
 } = require("../controllers/user.controller");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authenticateuser"); //check use
+const isAdmin = require("../middlewares/isAdmin");
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -34,9 +34,10 @@ const upload = multer({
 });
 
 // Existing routes
+router.get('/orderHistory', authMiddleware, getOrderHistory);
 router.get("/:id", getUserById);
 // In your routes file
-router.get('/order-history/:userId', authMiddleware, orderHistory);
+router.get('/order-history', authMiddleware, getOrderHistory);
 router.get('/cart/items', authMiddleware, getCartItems);
 router.post("/cart/add", authMiddleware, addToCart);
 router.put("/cart/editItem/:cartItemId", authMiddleware, updateCartItemQuantity);
@@ -60,9 +61,10 @@ router.put(
   updateUserProfile
 );
 
-router.post('/update-badges', authMiddleware, updateBadges);
+// router.post('/update-badges', authMiddleware, updateBadges);
 
 // Route to add a stamp to the user's gallery
 router.post('/add-stamp', authMiddleware, addStampToGallery);
+
 
 module.exports = router;

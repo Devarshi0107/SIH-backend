@@ -12,8 +12,8 @@ const philatelicItemSchema = new mongoose.Schema({
       'Brochures', 
       'Packs', 
       'Souvenirs', 
-      'PostalStationery', 
-      'OtherItems'
+    //   'PostalStationery', 
+    //   'OtherItems'
     ]
   },
   subitem: {
@@ -26,8 +26,8 @@ const philatelicItemSchema = new mongoose.Schema({
           Brochures: ['InformationBrochureAffixed', 'InformationBrochureBlank'],
           Packs: ['AnnualStampPack', 'ChildrenSpecialAnnualStampPack', 'SpecialCollectorsStampPack'],
           Souvenirs: ['MiniSheet/SouvenirSheet'],
-          PostalStationery: 'number', // PostalStationery expects a number (e.g., quantity, identifier, postal number)
-          OtherItems: 'string' // OtherItems expects a string (e.g., name or description of the item)
+        //   PostalStationery: 'number', // PostalStationery expects a number (e.g., quantity, identifier, postal number)
+        //   OtherItems: 'string' // OtherItems expects a string (e.g., name or description of the item)
         };
 
         // If subitem is not provided, allow it to be empty for some categories
@@ -55,20 +55,40 @@ const philatelicItemSchema = new mongoose.Schema({
   image: {type : String,required :true},
   visibility: {
     type: String,
+<<<<<<< HEAD
+=======
+    enum: ['all', 'normal_users', 'pda_users'],
+<<<<<<< HEAD
+    required : true
+  },
+=======
+  },
+   specifications: {
+    rarity: {
+      type: String,
+      enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
+      required: true,
+    }},
+>>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)
+  notify: {
+    type: String,
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
     enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
   specifications: {
-    year: Number,
-    // condition: String,
-    // dimensions: String,
+    year: {type : Number},
+    // dimensions: {type :String,required :true},
     rarity: { type: Boolean, default: false }
   },
+<<<<<<< HEAD
   notify: {
     type: String,
     enum: ['both', 'normal_users', 'pda_users'],
     required : true
   },
+=======
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
   status: {
     type: String,
     enum: ['active', 'inactive', 'out_of_stock'],

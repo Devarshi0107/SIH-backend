@@ -6,14 +6,19 @@ const Subscriber = require('../models/Subscriber.model');
 const Event = require('../models/Event.model');
 const nodemailer = require('nodemailer');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
+const Order = require('../models/Order.model');
 
 // Configure transporter
 const transporter = nodemailer.createTransport({
+<<<<<<< HEAD
   host: process.env.EMAIL_HOST, // Use your email service
+=======
+  host: process.env.EMAIL_HOST,
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
   auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASSWORD  // Your password or app-specific password
-  }
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
 });
 
 // Send email utility
@@ -199,6 +204,23 @@ exports.rejectNews = async (req, res) => {
   }
 };
 
+exports.getItem = async (req, res) => {
+  try {
+    // Fetch all philatelic items from the database
+    const philatelicItems = await PhilatelicItem.find({});
+
+    // Format the created_at field for each item
+    const itemsWithFormattedDate = philatelicItems.map(item => ({
+      ...item.toObject(), // Convert Mongoose document to plain JS object
+      created_at: moment(item.created_at).tz('Asia/Kolkata').format('DD/MM/YYYY')
+    }));
+
+    res.status(200).json(itemsWithFormattedDate);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+  
 // Reject Event with Notifications
 exports.rejectEvents = async (req, res) => {
   try {
@@ -270,6 +292,10 @@ exports.createPhilatelicItem = async (req, res) => {
       stock, 
       specifications, 
       status,
+<<<<<<< HEAD
+=======
+      year,
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       visibility,
       notify
     } = req.body;
@@ -288,15 +314,29 @@ exports.createPhilatelicItem = async (req, res) => {
       subitem,
       price,
       stock,
+      year,
       specifications,
       image: imageUrl,
       visibility,
+<<<<<<< HEAD
       notify,
       status: status || 'active'
+=======
+      notify
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
     });
 
     // Save to database
     await philatelicItem.save();
+    console.log(notify);
+    // Send notifications based on the 'notify' field
+    if (notify === 'both' || notify === 'pda_users') {
+      await sendPDANotifications(philatelicItem);
+    }
+
+    if (notify === 'both' || notify === 'normal_users') {
+      await sendNormalUserNotifications(philatelicItem);
+    }
 
     // Initialize arrays to track notified users
     let pdaNotifiedUsers = [];
@@ -325,10 +365,15 @@ exports.createPhilatelicItem = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
 // Send notifications to PDA users with matching preferences
 async function sendPDANotifications(item) {
   try {
     // Find PDA users whose preferences match the new item
+<<<<<<< HEAD
     // Find PDA users with matching item types AND email notifications enabled
     const pdaUsers = await PDA.find({
       'preferences.item_types': { $in: [item.subitem] },
@@ -337,6 +382,17 @@ async function sendPDANotifications(item) {
 
     // Send personalized emails to matching PDA users
     const notificationPromises = pdaUsers.map(async (pda) => {
+=======
+    console.log('inside sendPDanotifications',item.category);
+    const pdaUsers = await PDA.find({
+      'preferences.item_types': { $in: [item.category] },
+      'preferences.notification_preferences.email': true
+    })
+
+    console.log("pda match",pdaUsers);
+    // Send personalized emails to matching PDA users
+    for (const pda of pdaUsers) {
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       const emailOptions = {
         from: process.env.EMAIL_USER,
         to: pda.user.email,
@@ -413,6 +469,7 @@ async function sendPDANotifications(item) {
   </div>
 </div>
 `
+<<<<<<< HEAD
     };
 
       await transporter.sendMail(emailOptions);
@@ -437,6 +494,30 @@ async function sendNormalUserNotifications(item) {
 
     // Send emails to normal users
     const notificationPromises = users.map(async (user) => {
+=======
+      };
+      console.log("Email is sending..")
+      await transporter.sendMail(emailOptions);
+    }
+  } catch (error) {
+    console.error('Error sending PDA notifications:', error);
+  }
+}
+
+// Send notifications to all normal users
+async function sendNormalUserNotifications(item) {
+
+  // console.log('inside sendNormalUserNotifications', item);
+  try {
+    // Find all normal users
+    const users = await User.find({ 
+      isPDA: false 
+    });
+
+    // console.log('found all users', users);
+    // Send emails to normal users
+    for (const user of users) {
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
       const emailOptions = {
         from: process.env.EMAIL_USER,
         to: user.email,
@@ -458,7 +539,11 @@ async function sendNormalUserNotifications(item) {
       <h3 style="color: #686800;">${item.name}</h3>
       <img src="${item.image}" alt="${item.name}" style="max-width: 100%; height: auto; margin: 10px 0;">
       <p style="font-size: 14px; color: #333;"><strong>Category:</strong> ${item.category}</p>
+<<<<<<< HEAD
       <p style="font-size: 14px; color: #333;"><strong>Price:</strong> $${item.price}</p>
+=======
+      <p style="font-size: 14px; color: #333;"><strong>Price:</strong> ${item.price}</p>
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7
     </div>
     <div style="text-align: center; margin-top: 20px;">
       <a href="${process.env.FRONTEND_URL}/items/${item._id}" style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">View Item</a>
@@ -467,6 +552,7 @@ async function sendNormalUserNotifications(item) {
   <div style="background-color: #f1f1f1; color: #666; padding: 10px; text-align: center; font-size: 12px;">
     © 2024 India Post. All rights reserved.
   </div>
+<<<<<<< HEAD
 </div>`
       };
 
@@ -481,3 +567,55 @@ async function sendNormalUserNotifications(item) {
   }
 }
 
+=======
+</div>
+
+        `
+      };
+      console.log('Email is sending');
+      await transporter.sendMail(emailOptions);
+    }
+  } catch (error) {
+    console.error('Error sending normal user notifications:', error);
+  }
+}
+
+=======
+exports.getAllOrders = async (req, res) => {
+  try {
+    // Find all orders, populate item details, and sort by created date
+    const allOrders = await Order.find()
+      .populate('user', 'name email') // Populate user details (name, email)
+      .populate('items.philatelicItem', 'name price image') // Populate philatelic item details (name, price, image)
+      .sort({ createdAt: -1 }); // Sort orders by creation date, newest first
+
+    if (!allOrders.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No orders found.',
+      });
+    }
+
+    // Return all orders along with status and other details
+    return res.status(200).json({
+      success: true,
+      orders: allOrders.map(order => ({
+        orderId: order._id,
+        user: order.user,
+        items: order.items,
+        totalAmount: order.totalAmount,
+        orderStatus: order.status, // Order status field
+        createdAt: order.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching all orders:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching all orders',
+      errorDetails: error.message,
+    });
+  }
+};
+>>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)
+>>>>>>> 02fd1aa2eddb9bcfc3cbb54300f28767e1698ae7

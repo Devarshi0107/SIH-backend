@@ -1,12 +1,12 @@
 // routes/payment.route.js
 const express = require('express');
-const { processPaymentAndOrder, verifyPayment, checkOrderStatus } = require('../controllers/payment.controller');
+const { processPaymentAndOrder, fulfillOrder } = require('../controllers/payment.controller');
 const router = express.Router();
 const authenticateisuser = require('../middlewares/authenticateuser');
+const isAdmin = require('../middlewares/isAdmin');
 
 
 router.post('/checkout',authenticateisuser, processPaymentAndOrder);
-router.get('/verify',authenticateisuser, verifyPayment);
-router.get('/check-order-status/:shiprocketOrderId', checkOrderStatus); // Endpoint to check order status in Shiprocket
+router.post('/fulfillOrder/:orderId', isAdmin, fulfillOrder); 
 
 module.exports = router;
