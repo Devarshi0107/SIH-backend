@@ -248,8 +248,6 @@ exports.updateUserProfile = async (req, res) => {
   try {
     const userId = req.user._id; // User ID from auth middleware
     const updates = req.body; // Data to update
-    console.log(updates);
-    console.log("User ID from authMiddleware:", userId);
 
 
     // Allowed fields to update

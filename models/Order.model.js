@@ -1,4 +1,3 @@
-// models/Order.model.js
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -6,14 +5,15 @@ const orderSchema = new mongoose.Schema({
   items: [{
     philatelicItem: { type: mongoose.Schema.Types.ObjectId, ref: 'PhilatelicItem', required: true },
     quantity: { type: Number, required: true },
+    fulfilledQuantity: { type: Number, default: 0 }, // Quantity fulfilled by admin
     price: { type: Number, required: true },
   }],
   totalAmount: { type: Number, required: true },
-  paymentMethod: { type: String, enum: ['wallet', 'stripe'], required: true },
-  paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
-  orderStatus: { type: String, enum: ['processing', 'shipped', 'delivered', 'cancelled'], default: 'processing' },
-  shiprocketOrderId: { type: String },
-  createdAt: { type: Date, default: Date.now }
+  paymentMethod: { type: String, enum: ['wallet'], required: true },
+  paymentStatus: { type: String, enum: ['paid'], default: 'paid' }, // Default as 'paid' since it's wallet
+  orderStatus: { type: String, enum: ['processing', 'partially_fulfilled', 'fulfilled', 'cancelled'], default: 'processing' },
+  fulfilledByAdmin: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Order', orderSchema);

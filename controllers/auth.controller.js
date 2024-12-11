@@ -54,7 +54,7 @@ const generateToken = (user) => {
 // Register a new user
 exports.register = async (req, res) => {
     try {
-        const { email, password, name, phone } = req.body;
+        const { email, password, name, phone ,isPDA} = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -67,7 +67,8 @@ exports.register = async (req, res) => {
             password: hashedPassword,
             name,
             phone,
-            role: "user"
+            role: "user",
+            isPDA
         });
 
         // Save the new user to the database
