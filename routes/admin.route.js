@@ -4,6 +4,7 @@ const fs = require('fs');
 const {
   rejectNews,
   rejectEvents,
+  getAllOrders,
   approveNews,
   getItem,
   approveEvents,
@@ -68,5 +69,6 @@ router.put('/approve-news/:id', isAdmin, approveNews);
 router.put('/approve-event/:id', isAdmin, approveEvents);
 router.put('/reject-news/:id', isAdmin, rejectNews);
 router.put('/reject-event/:id',isAdmin, rejectEvents);
+router.get('/getAllOrders',isAdmin, getAllOrders);
  
 module.exports = router;

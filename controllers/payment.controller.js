@@ -8,9 +8,7 @@ const stripe = require('../config/stripe.config');
 const { createShiprocketOrder } = require('../services/shiprocket.service');
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
-
-
-const sendMail = require('../utils/mailer'); // Import mailer utility
+const sendMail = require('../utils/mailer');
 
 exports.processPaymentAndOrder = async (req, res) => {
   const userId = req.user._id;
@@ -86,72 +84,6 @@ exports.processPaymentAndOrder = async (req, res) => {
   }
 };
 
-exports.processPaymentAndOrder = async (req, res) => {
-  const userId = req.user._id;
-
-  try {
-    const user = await User.findById(userId).populate('cart.PhilatelicItem');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (user.cart.length === 0) {
-      return res.status(400).json({ message: 'Cart is empty' });
-    }
-
-    let totalAmount = 0;
-    const orderItems = [];
-
-    // Calculate total amount and validate stock
-    for (const cartItem of user.cart) {
-      const item = cartItem.PhilatelicItem;
-      if (!item) {
-        return res.status(404).json({ message: 'Item not found in cart' });
-      }
-
-      if (item.stock < cartItem.quantity) {
-        return res.status(400).json({ message: `Insufficient stock for item ${item.name}` });
-      }
-
-      totalAmount += item.price * cartItem.quantity;
-      orderItems.push({
-        philatelicItem: item._id,
-        quantity: cartItem.quantity,
-        price: item.price,
-      });
-    }
-
-    // Validate wallet balance
-    if (user.wallet_balance < totalAmount) {
-      return res.status(400).json({ message: 'Insufficient wallet balance' });
-    }
-
-    // Deduct wallet balance and save user
-    user.wallet_balance -= totalAmount;
-    user.cart = []; // Clear the cart after payment
-    await user.save();
-
-    // Create the order
-    const order = await Order.create({
-      user: userId,
-      items: orderItems,
-      totalAmount,
-      paymentMethod: 'wallet',
-      paymentStatus: 'paid',
-      orderStatus: 'processing',
-    });
-
-    res.status(201).json({
-      message: 'Order created successfully',
-      orderId: order._id,
-      totalAmount,
-    });
-  } catch (error) {
-    console.error('Error processing payment and order:', error);
-    res.status(500).json({ message: 'Error processing payment or placing order', error });
-  }
-};
 exports.fulfillOrder = async (req, res) => {
   const { orderId } = req.params;
   const { fulfilledItems } = req.body; // [{ philatelicItem: "itemId", fulfilledQuantity: 10 }]
