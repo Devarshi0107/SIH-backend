@@ -55,7 +55,6 @@ const philatelicItemSchema = new mongoose.Schema({
   image: {type : String,required :true},
   visibility: {
     type: String,
-
     enum: ['all', 'normal_users', 'pda_users'],
   },
    specifications: {
@@ -73,11 +72,6 @@ const philatelicItemSchema = new mongoose.Schema({
     year: {type : Number},
     // dimensions: {type :String,required :true},
     rarity: { type: Boolean, default: false }
-  },
-  notify: {
-    type: String,
-    enum: ['both', 'normal_users', 'pda_users'],
-    required : true
   },
   status: {
     type: String,
