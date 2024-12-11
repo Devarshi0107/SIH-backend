@@ -6,7 +6,7 @@ const Subscriber = require('../models/Subscriber.model');
 const Event = require('../models/Event.model');
 const nodemailer = require('nodemailer');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
-
+const moment = require('moment-timezone');
 // Configure transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -201,12 +201,20 @@ exports.rejectNews = async (req, res) => {
 
 exports.getItem = async (req, res) => {
   try {
+    // Fetch all philatelic items from the database
     const philatelicItems = await PhilatelicItem.find({});
-    res.status(200).json(philatelicItems);
+
+    // Format the created_at field for each item
+    const itemsWithFormattedDate = philatelicItems.map(item => ({
+      ...item.toObject(), // Convert Mongoose document to plain JS object
+      created_at: moment(item.created_at).tz('Asia/Kolkata').format('DD/MM/YYYY')
+    }));
+
+    res.status(200).json(itemsWithFormattedDate);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }  
-}
+  }
+};
   
 // Reject Event with Notifications
 exports.rejectEvents = async (req, res) => {
@@ -344,78 +352,78 @@ async function sendPDANotifications(item) {
         from: process.env.EMAIL_USER,
         to: pda.user.email,
         subject: 'New Philatelic Item Matching Your Preferences',
-//         html: `
-// <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-//   <div style="background-color: #1a4d2e; text-align: center; padding: 20px;">
-//     <h2 style="color: #fff; margin: 0;">Philatelic Treasures</h2>
-//   </div>
+        html: `
+<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+  <div style="background-color: #1a4d2e; text-align: center; padding: 20px;">
+    <h2 style="color: #fff; margin: 0;">Philatelic Treasures</h2>
+  </div>
   
-//   <div style="background-color: #1a4d2e; color: #fff; padding: 20px; text-align: center;">
-//     <h3 style="margin: 0;">New Collection Item Alert!</h3>
-//     <p style="margin: 10px 0 0 0;">Matching Your Interests</p>
-//   </div>
+  <div style="background-color: #1a4d2e; color: #fff; padding: 20px; text-align: center;">
+    <h3 style="margin: 0;">New Collection Item Alert!</h3>
+    <p style="margin: 10px 0 0 0;">Matching Your Interests</p>
+  </div>
   
-//   <div style="padding: 20px;">
-//     <p style="font-size: 16px; color: #333;">Dear ${pda.user.name},</p>
+  <div style="padding: 20px;">
+    <p style="font-size: 16px; color: #333;">Dear ${pda.user.name},</p>
     
-//     <p style="font-size: 16px; color: #333;">
-//       We're excited to inform you about a new philatelic item that perfectly matches your collection preferences!
-//     </p>
+    <p style="font-size: 16px; color: #333;">
+      We're excited to inform you about a new philatelic item that perfectly matches your collection preferences!
+    </p>
     
-//     <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 20px 0;">
-//       <h3 style="color: #1a4d2e; margin-top: 0;">${item.name}</h3>
+    <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h3 style="color: #1a4d2e; margin-top: 0;">${item.name}</h3>
       
-//       <div style="text-align: center; margin: 15px 0;">
-//         <img src="${item.image}" alt="${item.name}" 
-//              style="max-width: 200px; max-height: 200px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-//       </div>
+      <div style="text-align: center; margin: 15px 0;">
+        <img src="${item.image}" alt="${item.name}" 
+             style="max-width: 200px; max-height: 200px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      </div>
       
-//       <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
-//         <tr>
-//           <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e; width: 100px;">Category:</td>
-//           <td style="padding: 8px 0; color: #333;">${item.category}</td>
-//         </tr>
-//         <tr>
-//           <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Subitem:</td>
-//           <td style="padding: 8px 0; color: #333;">${item.subitem}</td>
-//         </tr>
-//         <tr>
-//           <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Price:</td>
-//           <td style="padding: 8px 0; color: #333;">$${item.price}</td>
-//         </tr>
-//       </table>
-//     </div>
+      <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e; width: 100px;">Category:</td>
+          <td style="padding: 8px 0; color: #333;">${item.category}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Subitem:</td>
+          <td style="padding: 8px 0; color: #333;">${item.subitem}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: bold; color: #1a4d2e;">Price:</td>
+          <td style="padding: 8px 0; color: #333;">$${item.price}</td>
+        </tr>
+      </table>
+    </div>
     
-//     <p style="font-size: 16px; color: #333;">
-//       This item matches your interest in ${item.subitem}. Don't miss out on this opportunity to enhance your collection!
-//     </p>
+    <p style="font-size: 16px; color: #333;">
+      This item matches your interest in ${item.subitem}. Don't miss out on this opportunity to enhance your collection!
+    </p>
     
-//     <div style="text-align: center; margin: 25px 0;">
-//       <a href="${process.env.FRONTEND_URL}/items/${item._id}" 
-//          style="background-color: #1a4d2e; color: white; padding: 12px 25px; text-decoration: none; 
-//                 border-radius: 5px; display: inline-block; font-weight: bold;">
-//         View Item Details
-//       </a>
-//     </div>
+    <div style="text-align: center; margin: 25px 0;">
+      <a href="${process.env.FRONTEND_URL}/items/${item._id}" 
+         style="background-color: #1a4d2e; color: white; padding: 12px 25px; text-decoration: none; 
+                border-radius: 5px; display: inline-block; font-weight: bold;">
+        View Item Details
+      </a>
+    </div>
     
-//     <p style="margin-top: 20px; font-size: 14px; color: #666;">
-//       Best Regards,<br>
-//       Your Philatelic Team
-//     </p>
-//   </div>
+    <p style="margin-top: 20px; font-size: 14px; color: #666;">
+      Best Regards,<br>
+      Your Philatelic Team
+    </p>
+  </div>
   
-//   <div style="background-color: #f1f1f1; color: #666; padding: 15px; text-align: center; font-size: 12px;">
-//     © ${new Date().getFullYear()} Philatelic Treasures. All rights reserved.
-//   </div>
+  <div style="background-color: #f1f1f1; color: #666; padding: 15px; text-align: center; font-size: 12px;">
+    © ${new Date().getFullYear()} Philatelic Treasures. All rights reserved.
+  </div>
   
-//   <div style="background-color: #fff; color: #666; padding: 15px; text-align: center; font-size: 12px; border-top: 1px solid #ddd;">
-//     <p style="margin: 0;">
-//       This email was sent because you opted to receive notifications for items matching your preferences.
-//       To update your preferences, please visit your account settings.
-//     </p>
-//   </div>
-// </div>
-// `
+  <div style="background-color: #fff; color: #666; padding: 15px; text-align: center; font-size: 12px; border-top: 1px solid #ddd;">
+    <p style="margin: 0;">
+      This email was sent because you opted to receive notifications for items matching your preferences.
+      To update your preferences, please visit your account settings.
+    </p>
+  </div>
+</div>
+`
       };
       console.log("Email is sending..")
       await transporter.sendMail(emailOptions);
@@ -459,7 +467,7 @@ async function sendNormalUserNotifications(item) {
       <h3 style="color: #686800;">${item.name}</h3>
       <img src="${item.image}" alt="${item.name}" style="max-width: 100%; height: auto; margin: 10px 0;">
       <p style="font-size: 14px; color: #333;"><strong>Category:</strong> ${item.category}</p>
-      <p style="font-size: 14px; color: #333;"><strong>Price:</strong> $${item.price}</p>
+      <p style="font-size: 14px; color: #333;"><strong>Price:</strong> ${item.price}</p>
     </div>
     <div style="text-align: center; margin-top: 20px;">
       <a href="${process.env.FRONTEND_URL}/items/${item._id}" style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">View Item</a>
