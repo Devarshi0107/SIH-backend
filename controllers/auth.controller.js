@@ -5,6 +5,39 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 require('dotenv').config(); 
 const JWT_SECRET = process.env.JWT_SECRET;
+const twilio = require('twilio');
+const { generateOTP, isOTPExpired } = require('../utils/otp.js');
+dotenv.config();
+
+const nodemailer = require('nodemailer');
+
+// Configure nodemailer
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// Function to send email
+const sendEmail = async (to, subject, text) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text,
+    });
+    console.log(`Email sent to ${to}`);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
+};
+
+
+const client = twilio('AC9c105305cf2550ad773a2897cf365121','3640dd72af260873e4038376edf9cfe2');
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -130,5 +163,108 @@ exports.getCurrentUser = async (req, res) => {
   } catch (error) {
     console.error("Get Current User Error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+// Store OTPs temporarily (in production, use Redis)
+const otpStore = new Map();
+
+exports.sendOTP = async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+    const otp = generateOTP();
+
+    // console.log('Hii',process.env.TWILIO_ACCOUNT_SID, ' ', process.env.TWILIO_AUTH_TOKEN, ' ', process.env.TWILIO_PHONE_NUMBER  );
+
+    // Store OTP with 5 minutes expiry
+    otpStore.set(phoneNumber, {
+      otp,
+      expiry: Date.now() + 5 * 60 * 1000,
+    });
+
+    if (client && '+917990137814') {
+      // Send SMS via Twilio
+      await client.messages.create({
+        body: `Your OTP for verification is: ${otp}`,
+        to: "+91" + phoneNumber,
+        from: '+14342162464'
+      });
+      res.json({ message: 'OTP sent successfully' });
+    } else {
+      // Development mode - return OTP in response
+      console.log('Twilio credentials not configured, running in development mode');
+      res.json({ message: 'OTP sent successfully', otp });
+    }
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    res.status(500).json({ error: 'Failed to send OTP' });
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { phoneNumber, otp } = req.body;
+    console.log(phoneNumber, otp);
+    const storedData = otpStore.get(phoneNumber);
+
+    if (!storedData || isOTPExpired(storedData.expiry) || storedData.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    otpStore.delete(phoneNumber);
+    res.json({ message: 'OTP verified successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to verify OTP' });
+  }
+};
+
+// Email OTP Store (use Redis for production)
+const emailOtpStore = new Map();
+
+// Send Email OTP
+exports.sendEmailOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const otp = generateOTP(); // Use the same generateOTP function
+    console.log(`Generated OTP for email ${email}: ${otp}`);
+
+    // Store OTP with 5 minutes expiry
+    emailOtpStore.set(email, {
+      otp,
+      expiry: Date.now() + 5 * 60 * 1000,
+    });
+
+    // Send email
+    await sendEmail(
+      email,
+      'Your OTP for Verification',
+      `Your OTP for verification is: ${otp}`
+    );
+
+    res.json({ message: 'OTP sent to email successfully' });
+  } catch (error) {
+    console.error('Error sending email OTP:', error);
+    res.status(500).json({ error: 'Failed to send email OTP' });
+  }
+};
+
+// Verify Email OTP
+exports.verifyEmailOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const storedData = emailOtpStore.get(email);
+
+    if (!storedData || isOTPExpired(storedData.expiry) || storedData.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    emailOtpStore.delete(email); // Remove OTP after successful verification
+    res.json({ message: 'Email OTP verified successfully' });
+  } catch (error) {
+    console.error('Error verifying email OTP:', error);
+    res.status(500).json({ error: 'Failed to verify email OTP' });
   }
 };
