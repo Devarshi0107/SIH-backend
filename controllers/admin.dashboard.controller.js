@@ -6,7 +6,8 @@ const Subscriber = require('../models/Subscriber.model');
 const Event = require('../models/Event.model');
 const nodemailer = require('nodemailer');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
-const moment = require('moment-timezone');
+const Order = require('../models/Order.model');
+
 // Configure transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -335,6 +336,7 @@ exports.createPhilatelicItem = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 // Send notifications to PDA users with matching preferences
 async function sendPDANotifications(item) {
   try {
@@ -488,3 +490,41 @@ async function sendNormalUserNotifications(item) {
   }
 }
 
+=======
+exports.getAllOrders = async (req, res) => {
+  try {
+    // Find all orders, populate item details, and sort by created date
+    const allOrders = await Order.find()
+      .populate('user', 'name email') // Populate user details (name, email)
+      .populate('items.philatelicItem', 'name price image') // Populate philatelic item details (name, price, image)
+      .sort({ createdAt: -1 }); // Sort orders by creation date, newest first
+
+    if (!allOrders.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No orders found.',
+      });
+    }
+
+    // Return all orders along with status and other details
+    return res.status(200).json({
+      success: true,
+      orders: allOrders.map(order => ({
+        orderId: order._id,
+        user: order.user,
+        items: order.items,
+        totalAmount: order.totalAmount,
+        orderStatus: order.status, // Order status field
+        createdAt: order.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching all orders:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching all orders',
+      errorDetails: error.message,
+    });
+  }
+};
+>>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)

@@ -56,8 +56,18 @@ const philatelicItemSchema = new mongoose.Schema({
   visibility: {
     type: String,
     enum: ['all', 'normal_users', 'pda_users'],
+<<<<<<< HEAD
     required : true
   },
+=======
+  },
+   specifications: {
+    rarity: {
+      type: String,
+      enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
+      required: true,
+    }},
+>>>>>>> bdc91d1 (get admin and user (PDA) side all past history api done)
   notify: {
     type: String,
     enum: ['both', 'normal_users', 'pda_users'],

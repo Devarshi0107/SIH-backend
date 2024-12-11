@@ -346,76 +346,142 @@ exports.getUserDetails = async (req, res) => {
     res.status(500).json({ message: "Error retrieving user details", error });
   }
 };
+exports.getOrderHistory = async (req, res) => {
+  const userId = req.user._id; // Ensure the user is authenticated and user._id is available
 
-
-exports.orderHistory = async (req, res) => {
   try {
-    // Extract user ID from URL parameters
-    const userId = req.params.userId;
-
-    // Validate that userId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid user ID format",
-        details: {
-          userId: userId,
-          userIdType: typeof userId
-        }
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID',
       });
     }
 
-    // Find all orders for the user
+    // Find all orders placed by the authenticated user
     const orderHistory = await Order.find({ user: userId })
-      .populate('postalCircle', 'name')
-      .populate('items.philatelicItem', 'name price')
-      .sort({ createdAt: -1 });
+      .populate('items.philatelicItem', 'name price image') // Populate the items with philatelic item details
+      .sort({ createdAt: -1 }); // Sort by creation date, newest first
 
-    // Respond with the order history
-    return res.status(200).json({ success: true, orderHistory });
+    if (!orderHistory.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No order history found for the user.',
+      });
+    }
+
+    // Return the order history along with status
+    return res.status(200).json({
+      success: true,
+      orderHistory: orderHistory.map(order => ({
+        orderId: order._id,
+        items: order.items,
+        totalAmount: order.totalAmount,
+        orderStatus: order.status, // Order status field
+        createdAt: order.createdAt,
+      })),
+    });
   } catch (error) {
-    console.error("Error fetching order history:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Server error processing order history",
-      errorDetails: error.message 
+    console.error('Error fetching order history:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error processing order history',
+      errorDetails: error.message,
     });
   }
 };
+// Import your Order model
 
-// Update Badges (Manual Trigger)
-exports.updateBadges = async (req, res) => {
+exports.getOrderHistory = async (req, res) => {
+  const userId = req.user._id; // Ensure this is the authenticated user's ID
+
   try {
-    // Find the user based on their authenticated ID
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    // Check if userId is valid
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID',
+      });
     }
 
-    // Example logic for badge updates
-    const updatedBadges = [];
-    const milestone = 10;  // Example: User achieves a milestone after 10 actions
+    // Fetch all orders placed by the authenticated user
+    const orderHistory = await Order.find({ user: userId })
+      .populate('items.philatelicItem', 'name price image')  // Populate details of philatelicItem (name, price, image)
+      .sort({ createdAt: -1 }); // Sort by creation date, newest first
 
-    if (user.actionsCount >= milestone && !user.badges.includes('Milestone Badge')) {
-      updatedBadges.push('Milestone Badge');
+    if (orderHistory.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No order history found for this user.',
+      });
     }
 
-    // Add badges if criteria are met
-    if (updatedBadges.length > 0) {
-      user.badges = [...user.badges, ...updatedBadges]; // Update the user's badges
-    }
+    // Map over the orders to structure the response properly
+    const orders = orderHistory.map(order => ({
+      orderId: order._id,
+      items: order.items.map(item => ({
+        philatelicItem: item.philatelicItem,
+        quantity: item.quantity,
+        fulfilledQuantity: item.fulfilledQuantity,
+        price: item.price,
+        totalItemPrice: item.quantity * item.price,
+      })),
+      totalAmount: order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      orderStatus: order.orderStatus,
+      fulfilledByAdmin: order.fulfilledByAdmin,
+      createdAt: order.createdAt,
+    }));
 
-    await user.save(); // Save user document with updated badges
-
-    res.json({
-      message: 'Badges updated successfully',
-      badges: user.badges,
+    // Return the order history
+    return res.status(200).json({
+      success: true,
+      orderHistory: orders,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching order history:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error fetching order history',
+      errorDetails: error.message,
+    });
   }
 };
+
+
+// // Update Badges (Manual Trigger)
+// exports.updateBadges = async (req, res) => {
+//   try {
+//     // Find the user based on their authenticated ID
+//     const user = await User.findById(req.user._id);
+
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     // Example logic for badge updates
+//     const updatedBadges = [];
+//     const milestone = 10;  // Example: User achieves a milestone after 10 actions
+
+//     if (user.actionsCount >= milestone && !user.badges.includes('Milestone Badge')) {
+//       updatedBadges.push('Milestone Badge');
+//     }
+
+//     // Add badges if criteria are met
+//     if (updatedBadges.length > 0) {
+//       user.badges = [...user.badges, ...updatedBadges]; // Update the user's badges
+//     }
+
+//     await user.save(); // Save user document with updated badges
+
+//     res.json({
+//       message: 'Badges updated successfully',
+//       badges: user.badges,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // Example: Add Stamp to Gallery
 exports.addStampToGallery = async (req, res) => {
@@ -445,4 +511,4 @@ exports.addStampToGallery = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}
