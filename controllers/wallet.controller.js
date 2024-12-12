@@ -106,7 +106,7 @@ exports.verifyPayment = async (req, res) => {
 // Controller to get wallet balance for a user
 exports.getWalletBalance = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id); // Assuming `req.user._id` is set by the `authMiddleware`
+    const user = await Pda.findById(req.user._id); // Assuming `req.user._id` is set by the `authMiddleware`
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
