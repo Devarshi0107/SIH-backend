@@ -77,26 +77,24 @@ exports.verifyPayment = async (req, res) => {
 
     // Send the extracted data to the client
     res.json(amountData);
-
-    // Update the user's wallet balance if payment was successful
-    if (session.payment_status === "paid") {
-      const user = await User.findOne({ email: session.customer_details.email });
-      if (user) {
-        user.wallet_balance += amountData.amount;
-         // Add the payment amount to the user's wallet balance
-        await user.save();
-        console.log("User wallet updated successfully.");
-        const pda = await Pda.findOne({ user: user._id })
-        if(pda){
-          console.log(typeof(amountData.amount));
-          pda.balance += amountData.amount;
-
-          await pda.save();
-          console.log("Pda balance:", pda.balance);
-        }
-      }
-
+// Update the user's wallet balance if payment was successful and user is PDA
+if (session.payment_status === "paid") {
+  try {
+    const user = await User.findOne({ email: session.customer_details.email });
+    
+    if (user && user.isPDA) {
+      // Only add the payment amount to wallet balance if user is PDA
+      user.wallet_balance += amountData.amount;
+      await user.save();
+      console.log(`Wallet balance updated successfully for PDA user: ${user.email}+${user.wallet_balance}`);
+    } else {
+      console.log("Wallet balance not updated: User either not found or not a PDA member");
     }
+  } catch (error) {
+    console.error("Error updating wallet balance:", error);
+    throw error;
+  }
+}
   } catch (error) {
     console.error("Error verifying payment:", error);
     res.status(500).json({ error: "Failed to verify payment and update wallet balance." });
