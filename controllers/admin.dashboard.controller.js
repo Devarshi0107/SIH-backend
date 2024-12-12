@@ -6,6 +6,7 @@ const Subscriber = require("../models/Subscriber.model");
 const Event = require("../models/Event.model");
 const nodemailer = require("nodemailer");
 const PhilatelicItem = require("../models/PhilatelicItem.model");
+const Order = require("../models/Order.model");
 const moment = require("moment-timezone");
 
 // Configure transporter
@@ -272,40 +273,6 @@ exports.rejectEvents = async (req, res) => {
   }
 };
 
-// exports.createPhilatelicItem = async (req, res) => {
-//   try {
-//     const { name, description, category, subitem, price, stock, specifications } = req.body;
-
-//     // Check if a file was uploaded
-//     let imageUrl = null;
-//     if (req.file) {
-//       imageUrl = `${req.protocol}://${req.get('host')}/uploads/philatelicItemImg/${encodeURIComponent(req.file.filename)}`;
-//     }
-
-//     // Create new philatelic item
-//     const philatelicItem = new PhilatelicItem({
-//       name,
-//       description,
-//       category,
-//       subitem,
-//       price,
-//       stock,
-//       specifications,
-//       image: imageUrl, // Store the uploaded image URL
-//     });
-
-//     // Save to database
-//     await philatelicItem.save();
-
-//     res.status(201).json({
-//       message: 'Philatelic item created successfully',
-//       philatelicItem,
-//     });
-//   } catch (error) {
-//     console.error('Error creating philatelic item:', error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 exports.createPhilatelicItem = async (req, res) => {
   try {
@@ -592,5 +559,43 @@ exports.getItem = async (req, res) => {
     res.status(200).json(itemsWithFormattedDate);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.getAllOrders = async (req, res) => {
+  try {
+    // Find all orders, populate item details, and sort by created date
+    const allOrders = await Order.find()
+      .populate('user', 'name email') // Populate user details (name, email)
+      .populate('items.philatelicItem', 'name price image') // Populate philatelic item details (name, price, image)
+      .sort({ createdAt: -1 }); // Sort orders by creation date, newest first
+
+    if (!allOrders.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No orders found.',
+      });
+    }
+
+    // Return all orders along with status and other details
+    return res.status(200).json({
+      success: true,
+      orders: allOrders.map(order => ({
+        orderId: order._id,
+        user: order.user,
+        items: order.items,
+        totalAmount: order.totalAmount,
+        orderStatus: order.status, // Order status field
+        createdAt: order.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching all orders:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching all orders',
+      errorDetails: error.message,
+    });
   }
 };

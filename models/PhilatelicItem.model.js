@@ -57,7 +57,6 @@ const philatelicItemSchema = new mongoose.Schema({
     type: String,
     enum: ['both', 'normal_users', 'pda_users'],
   },
-
   notify: {
     type: String,
     enum: ['both', 'normal_users', 'pda_users'],
