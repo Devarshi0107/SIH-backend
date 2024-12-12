@@ -74,7 +74,7 @@ exports.createPDA = async (req, res) => {
     const { user, postal_circle } = req.body;
     // Check if an account already exists for this user in the same postal circle
     console.log("USer Details :-",user);
-    const existingPDA = await PDA.findOne({ user, postal_circle });
+    const existingPDA = await PDA.findOne({ user});
     console.log("user exist or not",existingPDA);
     if (existingPDA) {
       return res.status(400).json({ message: 'An account already exists for this user in the specified postal circle' });

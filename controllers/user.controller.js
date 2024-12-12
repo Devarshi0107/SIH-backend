@@ -3,6 +3,7 @@ const PhilatelicItem = require("../models/PhilatelicItem.model");
 const Wishlist = require("../models/Wishlist.model");
 const Order = require("../models/Order.model");
 const mongoose = require("mongoose");
+const PDA = require("../models/PDA.model");
 
 // Update Delivery Address Controller
 exports.updateDeliveryAddress = async (req, res) => {
@@ -246,91 +247,179 @@ exports.removeProductFromWishlist = async (req, res) => {
 // Update user profile controller
 exports.updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id; // User ID from auth middleware
-    const updates = req.body; // Data to update
+    const userId = req.user._id; // Assumes authenticated user ID from middleware
+    const { 
+      name, 
+      email, 
+      phone, 
+      address,
+      profileImage 
+    } = req.body;
 
-
-    // Allowed fields to update
-    const allowedUpdates = ["name", "phone", "address"];
+    // Validation object to collect updates
     const updateFields = {};
 
-    // Only include allowed fields in the update
-    for (let key of allowedUpdates) {
-      // if (updates[key] !== undefined) {
-      //   updateFields[key] = updates[key];
-      // }
-      updateFields["name"] = updates["displayName"];
-      updateFields["phone"] = updates["mobile"];
-      updateFields["address"] = updates["address"];
-      if(updates["street"] != ""){
-        updateFields["street"] = updates["street"];
+    // Name validation and update
+    if (name && name.trim() !== '') {
+      updateFields.name = name.trim();
+    }
+
+    // Email validation and update
+    if (email && email.trim() !== '') {
+      // Optional: Add email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ 
+          message: "Invalid email format" 
+        });
       }
-      if(updates["city"] != ""){
-        updateFields["city"] = updates["city"];
+      updateFields.email = email.trim().toLowerCase();
+    }
+
+    // Phone validation and update
+    if (phone && phone.trim() !== '') {
+      // Optional: Add phone number format validation
+      const phoneRegex = /^[0-9]{10}$/; // Assumes 10-digit phone number
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ 
+          message: "Invalid phone number format" 
+        });
       }
-      if(updates["street"] != ""){
-        updateFields["street"] = updates["street"];
+      updateFields.phone = phone.trim();
+    }
+
+    // Address validation and update
+    if (address) {
+      updateFields.address = {};
+
+      // Validate and update individual address fields
+      if (address.street && address.street.trim() !== '') {
+        updateFields.address.street = address.street.trim();
       }
-      if(updates["state"] != ""){
-        updateFields["state"] = updates["state"];
+      if (address.city && address.city.trim() !== '') {
+        updateFields.address.city = address.city.trim();
       }
-      if(updates["pincode"] != ""){
-        updateFields["pincode"] = updates["pincode"];
+      if (address.state && address.state.trim() !== '') {
+        updateFields.address.state = address.state.trim();
       }
-      if(updates["country"] != ""){
-        updateFields["country"] = updates["country"];
+      if (address.pincode) {
+        // Convert to number and validate
+        const parsedPincode = Number(address.pincode);
+        if (!isNaN(parsedPincode)) {
+          updateFields.address.pincode = parsedPincode;
+        }
+      }
+      if (address.country && address.country.trim() !== '') {
+        updateFields.address.country = address.country.trim();
+      }
+
+      // Remove address if no fields are provided
+      if (Object.keys(updateFields.address).length === 0) {
+        delete updateFields.address;
       }
     }
 
-    // Handle profile image if uploaded
+    // Profile Image update
+    if (profileImage && profileImage.trim() !== '') {
+      updateFields.profileImage = profileImage.trim();
+    }
+
+    // Handle file upload if exists (optional)
     if (req.file) {
-      updateFields.profileImage = req.file.path; // Store path of uploaded image
+      updateFields.profileImage = req.file.path;
     }
 
-    // Update user profile and return updated user
+    // Perform the update
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updateFields },
-      { new: true, runValidators: true }
-    );
+      userId, 
+      { $set: updateFields }, 
+      { 
+        new: true, 
+        runValidators: true 
+      }
+    ).select('name email phone address profileImage');
 
+    // Check if user was found and updated
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        message: "User not found" 
+      });
     }
 
+    // Successful response
     res.status(200).json({
       message: "Profile updated successfully",
-      user: updatedUser,
+      user: updatedUser
     });
+
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating profile", error: error.message });
+    // Handle unique constraint error for email
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        message: "Email already in use" 
+      });
+    }
+
+    console.error("Profile update error:", error);
+    res.status(500).json({ 
+      message: "Error updating profile", 
+      error: error.message 
+    });
   }
 };
 
 exports.getUserById = async (req, res) => {
   try {
-    // Fetch the user by ID from the database
-    let user = await User.findById(req.params.id);
+    const { userId } = req.params;
 
-    // If user is not found, return a 404 response
-    if (!user) {
-      user = await PostalCircleModel.findById(req.params.id);
-      if(!user){
-        return res.status(404).json({ message: "User not found" });
+    // Find the PDA associated with the user and populate specific user details
+    const pda = await PDA.findOne({ user: userId })
+      .populate({
+        path: 'user',
+        select: 'name email address wallet_balance' // Explicitly select only these fields
+      });
+
+    // If no PDA found, try to fetch user directly
+    if (!pda) {
+      const user = await User.findById(userId)
+        .select('name email address wallet_balance');
+
+      if (!user) {
+        return res.status(404).json({ 
+          message: "User not found" 
+        });
       }
+
+      // Return user details without PDA
+      return res.status(200).json({
+        user: user,
+        hasPDA: false
+      });
     }
 
-    // Return the user data
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error("Error fetching user by ID:", error);
+    // Return the user details with PDA information
+    return res.status(200).json({
+      user: {
+        _id: pda.user._id,
+        name: pda.user.name,
+        email: pda.user.email,
+        address: pda.user.address,
+        wallet_balance: pda.user.wallet_balance
+      },
+      philatelicInventory: pda.philatelicInventory,
+      lastUpdated: pda.lastUpdated,
+      hasPDA: true
+    });
 
-    // Return a 500 response for any server errors
-    return res.status(500).json({ message: "Internal server error" });
-}
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
+  }
 };
+
 exports.getUserDetails = async (req, res) => {
   const { userId } = req.params; // Extract userId from the request parameters
 

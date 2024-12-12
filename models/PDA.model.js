@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const pdaSchema = new mongoose.Schema({
   account_number: { type: String, unique: true },  // Automatically generated
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // From request body
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true ,unique:true},  // From request body
   // postal_circle: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCircle', required: true },  // From request body
   balance: { type: Number, default: 0 },  // Optional in request body, default to 0
   preferences: {  // Optional in request body
