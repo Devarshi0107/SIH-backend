@@ -7,7 +7,7 @@ const Event = require('../models/Event.model');
 const nodemailer = require('nodemailer');
 const PhilatelicItem = require('../models/PhilatelicItem.model');
 const Order = require('../models/Order.model');
-
+const moment = require('moment-timezone');
 // Configure transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -311,15 +311,8 @@ exports.createPhilatelicItem = async (req, res) => {
       specifications,
       image: imageUrl,
       visibility,
-<<<<<<< HEAD
-      notify
-    });
-
-    // Save to database
-=======
       notify,
       status: status || 'active'})
->>>>>>> 38016eb5261c64a489a1688ac75d41df54ccc930
     await philatelicItem.save();
     console.log(notify);
     // Send notifications based on the 'notify' field
@@ -510,10 +503,6 @@ async function sendNormalUserNotifications(item) {
     console.error('Error sending normal user notifications:', error);
   }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 38016eb5261c64a489a1688ac75d41df54ccc930
 exports.getAllOrders = async (req, res) => {
   try {
     // Find all orders, populate item details, and sort by created date

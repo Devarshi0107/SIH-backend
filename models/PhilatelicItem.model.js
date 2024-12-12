@@ -57,21 +57,21 @@ const philatelicItemSchema = new mongoose.Schema({
     type: String,
     enum: ['all', 'normal_users', 'pda_users'],
   },
-   specifications: {
-    rarity: {
-      type: String,
-      enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
-      required: true,
-    }},
-  notify: {
-    type: String,
-    enum: ['both', 'normal_users', 'pda_users'],
-    required : true
-  },
+  //  specifications: {
+  //   rarity: {
+  //     type: String,
+  //     enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
+  //     required: true,
+  //   }},
+  // notify: {
+  //   type: String,
+  //   enum: ['both', 'normal_users', 'pda_users'],
+  //   required : true
+  // },
   specifications: {
     year: {type : Number},
     // dimensions: {type :String,required :true},
-    rarity: { type: Boolean, default: false }
+    // rarity: { type: Boolean, default: false }
   },
   status: {
     type: String,
