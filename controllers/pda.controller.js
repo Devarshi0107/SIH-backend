@@ -77,10 +77,7 @@ exports.createPDA = async (req, res) => {
     console.log("USer Details :-",user);
     const existingPDA = await PDA.findOne({ user});
     console.log("user exist or not",existingPDA);
-    console.log("User Details:", user);
-    
-    const existingPDA = await PDA.findOne({ user });
-    
+    console.log("User Details:", user);   
     console.log("User exists or not", existingPDA);
     
     if (existingPDA) {
