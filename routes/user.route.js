@@ -34,10 +34,11 @@ const upload = multer({
 });
 
 // Existing routes
+// router.get('/orderHistory',authMiddleware,getOrderHistory);
 router.get('/orderHistory', authMiddleware, getOrderHistory);
 router.get("/:userId", getUserById);
 // In your routes file
-router.get('/order-history', authMiddleware, getOrderHistory);
+// router.get('/order-history', getOrderHistory);
 router.get('/cart/items', authMiddleware, getCartItems);
 router.post("/cart/add", authMiddleware, addToCart);
 router.put("/cart/editItem/:cartItemId", authMiddleware, updateCartItemQuantity);

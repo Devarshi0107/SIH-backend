@@ -440,9 +440,10 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 exports.getOrderHistory = async (req, res) => {
-  const userId = req.user._id; // Ensure the user is authenticated and user._id is available
-
   try {
+    const userId = req.user._id; // Correct extraction of userId
+    console.log("User ID:", userId);
+
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
@@ -450,83 +451,30 @@ exports.getOrderHistory = async (req, res) => {
       });
     }
 
-    // Find all orders placed by the authenticated user
     const orderHistory = await Order.find({ user: userId })
-      .populate('items.philatelicItem', 'name price image') // Populate the items with philatelic item details
-      .sort({ createdAt: -1 }); // Sort by creation date, newest first
+      .populate('items.philatelicItem', 'name price image')
+      .sort({ createdAt: -1 });
 
-    if (!orderHistory.length) {
-      return res.status(404).json({
-        success: false,
-        message: 'No order history found for the user.',
-      });
-    }
-
-    // Return the order history along with status
-    return res.status(200).json({
-      success: true,
-      orderHistory: orderHistory.map(order => ({
-        orderId: order._id,
-        items: order.items,
-        totalAmount: order.totalAmount,
-        orderStatus: order.status, // Order status field
-        createdAt: order.createdAt,
-      })),
-    });
-  } catch (error) {
-    console.error('Error fetching order history:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error processing order history',
-      errorDetails: error.message,
-    });
-  }
-};
-// Import your Order model
-
-exports.getOrderHistory = async (req, res) => {
-  const userId = req.user._id; // Ensure this is the authenticated user's ID
-
-  try {
-    // Check if userId is valid
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid user ID',
-      });
-    }
-
-    // Fetch all orders placed by the authenticated user
-    const orderHistory = await Order.find({ user: userId })
-      .populate('items.philatelicItem', 'name price image')  // Populate details of philatelicItem (name, price, image)
-      .sort({ createdAt: -1 }); // Sort by creation date, newest first
-
-    if (orderHistory.length === 0) {
+    if (!orderHistory || orderHistory.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'No order history found for this user.',
       });
     }
 
-    // Map over the orders to structure the response properly
     const orders = orderHistory.map(order => ({
       orderId: order._id,
       items: order.items.map(item => ({
         philatelicItem: item.philatelicItem,
         quantity: item.quantity,
-        fulfilledQuantity: item.fulfilledQuantity,
         price: item.price,
         totalItemPrice: item.quantity * item.price,
       })),
       totalAmount: order.totalAmount,
-      paymentMethod: order.paymentMethod,
-      paymentStatus: order.paymentStatus,
       orderStatus: order.orderStatus,
-      fulfilledByAdmin: order.fulfilledByAdmin,
       createdAt: order.createdAt,
     }));
 
-    // Return the order history
     return res.status(200).json({
       success: true,
       orderHistory: orders,
@@ -536,12 +484,9 @@ exports.getOrderHistory = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error fetching order history',
-      errorDetails: error.message,
     });
   }
 };
-
-
 // // Update Badges (Manual Trigger)
 // exports.updateBadges = async (req, res) => {
 //   try {
