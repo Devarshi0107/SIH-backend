@@ -71,23 +71,37 @@ const generateAccountNumber = async () => {
 // Create a new PDA account
 exports.createPDA = async (req, res) => {
   try {
-    const { user, postal_circle } = req.body;
+    const { user, preferences, philatelicInventory } = req.body;
+
     // Check if an account already exists for this user in the same postal circle
     console.log("USer Details :-",user);
     const existingPDA = await PDA.findOne({ user});
     console.log("user exist or not",existingPDA);
+    console.log("User Details:", user);
+    
+      
     if (existingPDA) {
       return res.status(400).json({ message: 'An account already exists for this user in the specified postal circle' });
     }
 
-    // Create a new PDA object without the account number
-    const pda = new PDA(req.body);
+    // Create a new PDA object with all required fields
+    const pda = new PDA({
+      user,
+      preferences, // Include preferences from request body
+      philatelicInventory, // Include inventory from request body
+      account_number: await generateAccountNumber(), // Generate and assign account number
+      status: 'active', // Default status
+      balance: 0, // Default balance
+      created_at: new Date(),
+      lastUpdated: new Date(),
+    });
     
-    // Generate and assign the next unique account number
-    pda.account_number = await generateAccountNumber();
-    console.log("Account number:-",pda.account_number);
+    console.log("Account number:", pda.account_number);
+    
     await pda.save();
+    
     res.status(201).json(pda);
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -35,6 +35,7 @@ app.use(cors({
   credentials: true // Include cookies if needed
 }));
 
+app.use('/api/admin', createCircleRoutesByAdmin);
 app.use('/api/auth', authRoutes); 
 app.use('/api/postal-circles', postalCircleRoutes);
 app.use('/api/philatelic-items', philatelicItemRoutes);
@@ -43,7 +44,6 @@ app.use('/api/events', eventRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/wallet', walletRoutes);
-app.use('/api/admin', createCircleRoutesByAdmin);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use("/api/posts", postRoutes);
