@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth.route');
 const pdaRoutes = require('./routes/pda.route');
 const eventRoutes = require('./routes/event.route');
 const newsRoutes = require('./routes/news.route');
+const forumRoutes = require('./routes/forum.route');
 const userRoutes = require('./routes/user.route');
 const walletRoutes = require('./routes/wallet.route');
 const paymentRoutes = require('./routes/payment.route');
@@ -51,6 +52,8 @@ app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/pdaOrders',pdaOrderRoutes);
+app.use('/api/forum', forumRoutes);
+
 // app.use((req, res) => {
 //   res.status(404).json({ message: 'Resource not found' });
 // });

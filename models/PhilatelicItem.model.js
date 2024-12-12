@@ -63,11 +63,11 @@ const philatelicItemSchema = new mongoose.Schema({
   //     enum: ['Common', 'Rare', 'Legendary', 'Exclusive'], // Add 'Exclusive' here
   //     required: true,
   //   }},
-  // notify: {
-  //   type: String,
-  //   enum: ['both', 'normal_users', 'pda_users'],
-  //   required : true
-  // },
+  notify: {
+    type: String,
+    enum: ['both', 'normal_users', 'pda_users'],
+    required : true
+  },
   specifications: {
    year: {
             type: [String], // Array of strings
