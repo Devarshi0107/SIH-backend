@@ -74,6 +74,9 @@ exports.createPDA = async (req, res) => {
     const { user, preferences, philatelicInventory } = req.body;
 
     // Check if an account already exists for this user in the same postal circle
+    console.log("USer Details :-",user);
+    const existingPDA = await PDA.findOne({ user});
+    console.log("user exist or not",existingPDA);
     console.log("User Details:", user);
     
     const existingPDA = await PDA.findOne({ user });

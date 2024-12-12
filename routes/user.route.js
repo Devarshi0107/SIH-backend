@@ -35,7 +35,7 @@ const upload = multer({
 
 // Existing routes
 router.get('/orderHistory', authMiddleware, getOrderHistory);
-router.get("/:id", getUserById);
+router.get("/:userId", getUserById);
 // In your routes file
 router.get('/order-history', authMiddleware, getOrderHistory);
 router.get('/cart/items', authMiddleware, getCartItems);
