@@ -215,3 +215,46 @@ exports.getPhilatelicItemsByPostCircle = async (req, res) => {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
+
+const PDA = require('../models/PDA.model');
+exports.getPhilatelicItemsByPref = async (req, res) => {
+  try {
+    // Retrieve the authenticated user from the request
+    const user = req.user;
+
+    // Validate user existence
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Fetch philatelic inventory for the specific user
+    const userPhilatelicItems = await PDA.find({user});
+
+    if (user.isPDA) {
+      // Respond with user details and their philatelic inventory for PDA users
+      return res.status(200).json({
+        user: {
+          name: user.name,
+          email: user.email,
+          address: user.address,
+          isPDA: user.isPDA,
+        },
+        philatelicItems: userPhilatelicItems,
+      });
+    } else {
+      // Respond with only user details for normal users
+      return res.status(200).json({
+        user: {
+          name: user.name,
+          email: user.email,
+          address: user.address,
+          isPDA: user.isPDA,
+        },
+        philatelicItems: [], // Normal users don't see their inventory
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching philatelic items:', error);
+    res.status(500).json({ message: 'An error occurred while fetching philatelic items' });
+  }
+};

@@ -393,7 +393,7 @@ exports.getUserById = async (req, res) => {
       // Return user details without PDA
       return res.status(200).json({
         user: user,
-        hasPDA: false
+       isPDA: false
       });
     }
 
@@ -408,7 +408,7 @@ exports.getUserById = async (req, res) => {
       },
       philatelicInventory: pda.philatelicInventory,
       lastUpdated: pda.lastUpdated,
-      hasPDA: true
+      isPDA: true
     });
 
   } catch (error) {
