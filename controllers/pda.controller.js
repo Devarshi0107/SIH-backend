@@ -71,13 +71,15 @@ const generateAccountNumber = async () => {
 // Create a new PDA account
 exports.createPDA = async (req, res) => {
   try {
-    const { user, preferences, philatelicInventory } = req.body;
+    const userId = req.user._id;
+    console.log(`Creating PDA account`, userId);
+
+    const { email, preferences, philatelicInventory } = req.body;
 
     // Check if an account already exists for this user in the same postal circle
-    console.log("USer Details :-",user);
-    const existingPDA = await PDA.findOne({ user});
+    // console.log("USer Details :-",user);
+    const existingPDA = await PDA.findOne({userId});
     console.log("user exist or not",existingPDA);
-    console.log("User Details:", user);
     
       
     if (existingPDA) {
@@ -86,7 +88,8 @@ exports.createPDA = async (req, res) => {
 
     // Create a new PDA object with all required fields
     const pda = new PDA({
-      user,
+      user :userId,
+      email,
       preferences, // Include preferences from request body
       philatelicInventory, // Include inventory from request body
       account_number: await generateAccountNumber(), // Generate and assign account number

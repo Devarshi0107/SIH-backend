@@ -376,13 +376,13 @@ exports.getUserById = async (req, res) => {
     const pda = await PDA.findOne({ user: userId })
       .populate({
         path: 'user',
-        select: 'name email address wallet_balance' // Explicitly select only these fields
+        select: 'name email address wallet_balance profileImage phone' // Explicitly select only these fields
       });
 
     // If no PDA found, try to fetch user directly
     if (!pda) {
       const user = await User.findById(userId)
-        .select('name email address wallet_balance');
+        .select('name email address wallet_balance profileImage phone');
 
       if (!user) {
         return res.status(404).json({ 
@@ -393,18 +393,22 @@ exports.getUserById = async (req, res) => {
       // Return user details without PDA
       return res.status(200).json({
         user: user,
-       isPDA: false
+        isPDA: false
       });
     }
 
-    // Return the user details with PDA information
+    // Get the user data from the populated PDA and return both user and PDA info
+    const user = pda.user; // This comes from the populated PDA
+
     return res.status(200).json({
       user: {
-        _id: pda.user._id,
-        name: pda.user.name,
-        email: pda.user.email,
-        address: pda.user.address,
-        wallet_balance: pda.user.wallet_balance
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        address: user.address,
+        wallet_balance: user.wallet_balance,
+        profileImage: user.profileImage,
+        phone: user.phone,
       },
       philatelicInventory: pda.philatelicInventory,
       lastUpdated: pda.lastUpdated,
