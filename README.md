@@ -2,39 +2,6 @@
 
 This document provides an overview of the pending API endpoints and their details for our project. 
 
-## Pending API Tasks by Team Members
-
-| API | Status | Assigned To | Notes |
-| --- | ------ | ----------- | ----- |
-| Login and Signup (without Google Sign-In) - User | Complete | Vasu |  |
-| Login (without Google Sign-In) - Postal Circle | Pending | Vasu | |
-| Login and Signup (without Google Sign-In) - Admin | Pending | Vasu | |
-| Login and Signup (with Google Sign-In) - User | Pending | Kirtan | |
-| User Phone Number and Address (Get, Put, Delete, Post) | Pending | Harsh | |
-| Contact Support (Chat) - User to Admin | Future Work | Kirtan | |
-| Contact Support (Chat) - Postal Circle to Admin | Future Work | Kirtan | |
-| Stamp Search by Name | Pending | Harsh | |
-| Community Posts (Post, Put, Get, Delete) | Pending | Devarshi | |
-| Like Functionality | Pending | Devarshi | |
-| Share Functionality | Pending | Devarshi | |
-| Comment Functionality (Post Circle Included) | Pending | Devarshi | |
-| Subscribe to News | Pending | Devarshi | |
-| Upcoming Event | Pending | Kirtan | User |
-| PDA Account Open | Pending | Kirtan | User |
-| Retrieve Postal Circle ID by State and City | Pending | Kirtan | |
-| News CRUD (Post, Get, Put, Delete) | Pending | Kirtan | |
-| Total PDA Account Count | Pending | Harsh | Admin |
-| Total User Count | Pending | Harsh | Admin |
-| Total Sales (From Order Success) | Pending | Vasu | Admin |
-| Generate Sales Report | Pending | Vasu | Admin |
-| Postal Circle Item Management (Get, Post, Put, Delete) | Pending | Devarshi | Postal Circle |
-| User Order API | Pending | Kirtan | |
-| Show User Orders in Postal Circle | Pending | Kirtan | |
-| Wallet Recharge | Pending | Kirtan | User |
-| Add to Cart API | Pending | Kirtan | User |
-| Translation API | Future Work | Devarshi | |
-| Wallet Balance Update on Postal Circle Orders | Pending | Kirtan | |
-
 ---
 
 
